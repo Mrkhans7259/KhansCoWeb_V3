@@ -1,0 +1,71 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{{ "Edit Staff" if staff_member else "Add Staff" }}</h1>
+                <p>{{ "Update staff account" if staff_member else "Create a new staff record" }}</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.staff') }}">Back</a>
+        </header>
+
+        <section class="panel">
+            <form method="POST" class="client-form">
+                <div class="grid-2">
+                    <div>
+                        <label>Staff Name</label>
+                        <input name="name" value="{{ staff_member.name if staff_member else '' }}" required>
+                    </div>
+
+                    <div>
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ staff_member.email if staff_member else '' }}" required>
+                    </div>
+
+                    <div>
+                        <label>Mobile</label>
+                        <input name="mobile" value="{{ staff_member.mobile if staff_member else '' }}">
+                    </div>
+
+                    <div>
+                        <label>Role</label>
+                        <select name="role">
+                            <option value="manager" {% if staff_member and staff_member.role == "manager" %}selected{% endif %}>Manager</option>
+                            <option value="auditor" {% if staff_member and staff_member.role == "auditor" %}selected{% endif %}>Auditor</option>
+                            <option value="accountant" {% if staff_member and staff_member.role == "accountant" %}selected{% endif %}>Accountant</option>
+                            <option value="staff" {% if staff_member and staff_member.role == "staff" %}selected{% endif %}>Staff</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Designation</label>
+                        <input name="designation" value="{{ staff_member.designation if staff_member else '' }}" placeholder="Senior Auditor / Accountant">
+                    </div>
+
+                    <div>
+                        <label>Department</label>
+                        <input name="department" value="{{ staff_member.department if staff_member else '' }}" placeholder="GST / IT / Accounts">
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="active" {% if staff_member and staff_member.status == "active" %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if staff_member and staff_member.status == "inactive" %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label>Address</label>
+                <textarea name="address" rows="4">{{ staff_member.address if staff_member else '' }}</textarea>
+
+                <button type="submit" class="save-btn">{{ "Update Staff" if staff_member else "Save Staff" }}</button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

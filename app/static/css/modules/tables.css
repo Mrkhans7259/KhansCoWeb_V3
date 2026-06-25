@@ -1,0 +1,28 @@
+.table-wrap {
+    overflow-x: auto;
+}
+
+.enterprise-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.enterprise-table th {
+    text-align: left;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    padding: 14px;
+}
+
+.enterprise-table td {
+    padding: 15px 14px;
+    border-bottom: 1px solid var(--kc-border);
+    color: #334155;
+}
+
+.empty {
+    text-align: center;
+    color: var(--kc-muted);
+    font-weight: 700;
+}

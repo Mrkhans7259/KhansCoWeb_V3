@@ -1,0 +1,105 @@
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.card {
+    background: white;
+    border: 1px solid var(--kc-border);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 14px 35px rgba(15,23,42,.06);
+}
+
+.card span {
+    color: var(--kc-muted);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.card h2 {
+    font-size: 32px;
+    margin: 8px 0;
+}
+
+.card p {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.panels {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 22px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--kc-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 14px 35px rgba(15,23,42,.06);
+}
+
+.panel h3 {
+    font-size: 21px;
+    margin-bottom: 8px;
+}
+
+.panel p {
+    color: var(--kc-muted);
+    margin-bottom: 18px;
+}
+
+.large {
+    min-height: 280px;
+}
+
+.bar-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 45px;
+    gap: 14px;
+    align-items: center;
+    margin: 22px 0;
+    font-weight: 800;
+}
+
+.bar-row div {
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.bar-row b {
+    display: block;
+    height: 100%;
+    background: var(--kc-blue);
+    border-radius: 99px;
+}
+
+.task,
+.activity {
+    padding: 15px;
+    border-radius: 16px;
+    background: #f8fafc;
+    margin-top: 12px;
+    font-weight: 700;
+}
+
+.quick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.quick button {
+    padding: 15px;
+    border: 1px solid var(--kc-border);
+    border-radius: 15px;
+    background: #f8fafc;
+    font-weight: 900;
+    cursor: pointer;
+}

@@ -32,7 +32,6 @@ class Client(db.Model):
     __tablename__ = "clients"
 
     id = db.Column(db.Integer, primary_key=True)
-
     client_code = db.Column(db.String(30), unique=True, nullable=False, index=True)
     business_name = db.Column(db.String(150), nullable=False)
     client_name = db.Column(db.String(120), nullable=False)
@@ -54,5 +53,25 @@ class Client(db.Model):
 
     status = db.Column(db.String(30), nullable=False, default="active")
     assigned_staff = db.Column(db.String(120), nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Staff(db.Model):
+    __tablename__ = "staff"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    staff_code = db.Column(db.String(30), unique=True, nullable=False, index=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False, index=True)
+    mobile = db.Column(db.String(20), nullable=True)
+
+    role = db.Column(db.String(50), nullable=False, default="staff")
+    designation = db.Column(db.String(100), nullable=True)
+    department = db.Column(db.String(100), nullable=True)
+
+    status = db.Column(db.String(30), nullable=False, default="active")
+    address = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

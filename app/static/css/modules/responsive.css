@@ -1,0 +1,52 @@
+@media(max-width:950px) {
+    .auth-shell,
+    .auth-shell.large {
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .brand-panel,
+    .form-panel {
+        padding: 35px;
+    }
+
+    .grid-2,
+    .metrics,
+    .panels {
+        grid-template-columns: 1fr;
+    }
+
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .client-search {
+        flex-direction: column;
+    }
+
+    .client-search button,
+    .client-search a {
+        height: 44px;
+        justify-content: center;
+    }
+}
