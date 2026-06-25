@@ -1,0 +1,23 @@
+<aside class="sidebar">
+    <div class="side-brand">
+        <div class="side-logo">K&C</div>
+        <div>
+            <h2>Khans & Co</h2>
+            <p>Enterprise Admin</p>
+        </div>
+    </div>
+
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.clients') }}">Client Master</a>
+        <a href="#">Compliance</a>
+        <a href="#">GST</a>
+        <a href="#">Income Tax</a>
+        <a href="#">Documents</a>
+        <a href="#">Finance</a>
+        <a href="#">Reports</a>
+        <a href="#">Analytics</a>
+        <a href="#">Settings</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+</aside>

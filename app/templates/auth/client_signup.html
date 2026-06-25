@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-shell large">
+        <div class="brand-panel">
+            <div class="logo-box">K&C</div>
+            <h1>Client Portal</h1>
+            <h2>Join Khans & Co Compliance Manager</h2>
+            <p>Register your business and manage GST, tax documents, notices, reports and communication from one portal.</p>
+            <div class="feature-list">
+                <span>✓ Upload Documents</span>
+                <span>✓ Track GST Status</span>
+                <span>✓ View Tax Updates</span>
+                <span>✓ Secure Communication</span>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <h2>Create Client Account</h2>
+            <p class="muted">Your account will be reviewed by Khans & Co.</p>
+
+            <form method="POST" class="form">
+                <div class="grid-2">
+                    <div><label>Business Name</label><input name="business_name" required></div>
+                    <div><label>Client Name</label><input name="name" required></div>
+                    <div><label>Mobile</label><input name="mobile" required></div>
+                    <div><label>Email</label><input type="email" name="email" required></div>
+                    <div><label>GSTIN</label><input name="gstin"></div>
+                    <div><label>PAN</label><input name="pan"></div>
+                    <div><label>Password</label><input type="password" name="password" required></div>
+                    <div><label>Confirm Password</label><input type="password" name="confirm_password" required></div>
+                </div>
+
+                <button type="submit">Create Client Account</button>
+
+                <div class="bottom-link">
+                    Already registered? <a href="{{ url_for('auth.login') }}">Login here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

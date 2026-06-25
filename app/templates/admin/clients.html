@@ -1,0 +1,68 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Client Master</h1>
+                <p>Manage all Khans & Co clients from one place</p>
+            </div>
+            <a class="top-action" href="{{ url_for('admin.add_client') }}">+ Add Client</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <form method="GET" class="client-search">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search by business, client, GSTIN, PAN, mobile">
+                <button type="submit">Search</button>
+                <a href="{{ url_for('admin.clients') }}">Clear</a>
+            </form>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Business</th>
+                            <th>Client</th>
+                            <th>Mobile</th>
+                            <th>GSTIN</th>
+                            <th>PAN</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr>
+                            <td>{{ client.client_code }}</td>
+                            <td><strong>{{ client.business_name }}</strong></td>
+                            <td>{{ client.client_name }}</td>
+                            <td>{{ client.mobile }}</td>
+                            <td>{{ client.gstin or "-" }}</td>
+                            <td>{{ client.pan or "-" }}</td>
+                            <td><span class="badge {{ client.status }}">{{ client.status }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="empty">No clients found. Add your first client.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

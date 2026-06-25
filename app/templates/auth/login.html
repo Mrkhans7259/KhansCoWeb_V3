@@ -1,0 +1,54 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-shell">
+        <div class="brand-panel">
+            <div class="logo-box">K&C</div>
+            <h1>Khans & Co</h1>
+            <h2>Compliance Manager V3 Enterprise</h2>
+            <p>Secure compliance platform for GST, Income Tax, documents, reminders, reports and client management.</p>
+            <div class="feature-list">
+                <span>✓ GST Compliance</span>
+                <span>✓ Income Tax</span>
+                <span>✓ Client Portal</span>
+                <span>✓ Document Management</span>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <h2>Secure Login</h2>
+            <p class="muted">Access your enterprise dashboard</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" class="form">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="Enter registered email" required>
+
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" required>
+
+                <div class="form-row">
+                    <label class="check"><input type="checkbox"> Remember me</label>
+                    <a href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
+                </div>
+
+                <button type="submit">Login</button>
+
+                <div class="bottom-link">
+                    New client? <a href="{{ url_for('auth.client_signup') }}">Create Client Account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

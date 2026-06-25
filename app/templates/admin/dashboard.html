@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p>Enterprise overview for clients, compliance and finance</p>
+            </div>
+            <div class="profile">Welcome, {{ session.get("user_name") }}</div>
+        </header>
+
+        <section class="metrics">
+            <div class="card"><span>Total Clients</span><h2>{{ total_clients }}</h2><p>Registered clients</p></div>
+            <div class="card success"><span>Active Clients</span><h2>{{ active_clients }}</h2><p>Currently active</p></div>
+            <div class="card warning"><span>GST Pending</span><h2>0</h2><p>Returns pending</p></div>
+            <div class="card danger"><span>Inactive Clients</span><h2>{{ inactive_clients }}</h2><p>Inactive clients</p></div>
+        </section>
+
+        <section class="panels">
+            <div class="panel large">
+                <h3>Compliance Summary</h3>
+                <p>Monthly filing status overview</p>
+                <div class="bar-row"><span>GSTR-1</span><div><b style="width:70%"></b></div><strong>70%</strong></div>
+                <div class="bar-row"><span>GSTR-3B</span><div><b style="width:45%"></b></div><strong>45%</strong></div>
+                <div class="bar-row"><span>ITR</span><div><b style="width:30%"></b></div><strong>30%</strong></div>
+            </div>
+
+            <div class="panel">
+                <h3>Quick Actions</h3>
+                <div class="quick">
+                    <a class="quick-link" href="{{ url_for('admin.add_client') }}">Add Client</a>
+                    <button>Upload Document</button>
+                    <button>GST Reminder</button>
+                    <button>Generate Report</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}
