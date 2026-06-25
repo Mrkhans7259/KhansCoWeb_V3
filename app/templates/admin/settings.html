@@ -1,0 +1,117 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Firm Settings</h1>
+                <p>Manage Khans & Co branding, contact details and default preferences</p>
+            </div>
+            <div class="profile">{{ settings.firm_name }}</div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <form method="POST" class="client-form">
+                <h3>Firm Information</h3>
+
+                <div class="grid-2">
+                    <div>
+                        <label>Firm Name</label>
+                        <input name="firm_name" value="{{ settings.firm_name or '' }}" required>
+                    </div>
+
+                    <div>
+                        <label>Tagline</label>
+                        <input name="tagline" value="{{ settings.tagline or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Proprietor / Partner Name</label>
+                        <input name="proprietor_name" value="{{ settings.proprietor_name or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Mobile</label>
+                        <input name="mobile" value="{{ settings.mobile or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ settings.email or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Website</label>
+                        <input name="website" value="{{ settings.website or '' }}">
+                    </div>
+
+                    <div>
+                        <label>GSTIN</label>
+                        <input name="gstin" value="{{ settings.gstin or '' }}">
+                    </div>
+
+                    <div>
+                        <label>PAN</label>
+                        <input name="pan" value="{{ settings.pan or '' }}">
+                    </div>
+                </div>
+
+                <label>Address</label>
+                <textarea name="address" rows="4">{{ settings.address or '' }}</textarea>
+
+                <div class="grid-2">
+                    <div>
+                        <label>City</label>
+                        <input name="city" value="{{ settings.city or '' }}">
+                    </div>
+
+                    <div>
+                        <label>State</label>
+                        <input name="state" value="{{ settings.state or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Pincode</label>
+                        <input name="pincode" value="{{ settings.pincode or '' }}">
+                    </div>
+
+                    <div>
+                        <label>Financial Year</label>
+                        <input name="financial_year" value="{{ settings.financial_year or '' }}" placeholder="2025-26">
+                    </div>
+
+                    <div>
+                        <label>Reminder Days</label>
+                        <input name="reminder_days" value="{{ settings.reminder_days or '' }}" placeholder="15,7,3,1">
+                    </div>
+
+                    <div>
+                        <label>Primary Color</label>
+                        <input name="primary_color" value="{{ settings.primary_color or '#0f172a' }}">
+                    </div>
+
+                    <div>
+                        <label>Accent Color</label>
+                        <input name="accent_color" value="{{ settings.accent_color or '#d4af37' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="save-btn">Save Firm Settings</button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

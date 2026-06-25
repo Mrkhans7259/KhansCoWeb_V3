@@ -2,6 +2,8 @@ from flask import render_template, redirect, url_for, session, request, flash
 from app.admin import admin_bp
 from app.database.db import db
 from app.database.models import Client, ClientDocument, ComplianceTask
+from app.services.audit_service import log_action
+from app.utils.route_guards import require_client_management
 
 
 def admin_required():
@@ -16,6 +18,7 @@ def get_next_client_code():
 
 
 @admin_bp.route("/clients")
+@require_client_management
 def clients():
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -37,6 +40,7 @@ def clients():
 
 
 @admin_bp.route("/clients/add", methods=["GET", "POST"])
+@require_client_management
 def add_client():
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -45,6 +49,16 @@ def add_client():
         client = Client(client_code=get_next_client_code())
         save_client_from_form(client)
         db.session.add(client)
+        db.session.flush()
+
+        log_action(
+            action="Created",
+            module="Client Management",
+            record_type="Client",
+            record_id=client.id,
+            description=f"Created client: {client.business_name}"
+        )
+
         db.session.commit()
         flash("Client added successfully", "success")
         return redirect(url_for("admin.clients"))
@@ -53,6 +67,7 @@ def add_client():
 
 
 @admin_bp.route("/clients/<int:client_id>")
+@require_client_management
 def view_client(client_id):
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -100,6 +115,7 @@ def view_client(client_id):
 
 
 @admin_bp.route("/clients/<int:client_id>/edit", methods=["GET", "POST"])
+@require_client_management
 def edit_client(client_id):
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -108,6 +124,15 @@ def edit_client(client_id):
 
     if request.method == "POST":
         save_client_from_form(client)
+
+        log_action(
+            action="Updated",
+            module="Client Management",
+            record_type="Client",
+            record_id=client.id,
+            description=f"Updated client: {client.business_name}"
+        )
+
         db.session.commit()
         flash("Client updated successfully", "success")
         return redirect(url_for("admin.view_client", client_id=client.id))
@@ -116,6 +141,7 @@ def edit_client(client_id):
 
 
 @admin_bp.route("/clients/<int:client_id>/delete", methods=["POST"])
+@require_client_management
 def delete_client(client_id):
     if not admin_required():
         return redirect(url_for("auth.login"))

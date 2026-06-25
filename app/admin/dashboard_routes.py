@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, session
 from app.admin import admin_bp
 from app.database.models import Client
+from app.utils.route_guards import require_admin_area
 
 
 def admin_required():
@@ -8,6 +9,7 @@ def admin_required():
 
 
 @admin_bp.route("/dashboard")
+@require_admin_area
 def dashboard():
     if not admin_required():
         return redirect(url_for("auth.login"))

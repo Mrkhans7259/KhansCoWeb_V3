@@ -1,0 +1,61 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Activity Log</h1>
+                <p>Audit trail of important actions performed in KCMS Enterprise</p>
+            </div>
+            <div class="profile">Recent Logs: {{ logs|length }}</div>
+        </header>
+
+        <section class="panel">
+            <h3>Recent Activity</h3>
+            <p>Showing latest 200 activities.</p>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Module</th>
+                            <th>Action</th>
+                            <th>Record</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.created_at.strftime("%d-%m-%Y %I:%M %p") }}</td>
+                            <td><strong>{{ log.user_name or "System" }}</strong></td>
+                            <td>{{ log.user_role or "-" }}</td>
+                            <td><span class="badge doc-badge">{{ log.module }}</span></td>
+                            <td>{{ log.action }}</td>
+                            <td>
+                                {% if log.record_type %}
+                                    {{ log.record_type }} #{{ log.record_id or "-" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ log.description or "-" }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="empty">No activity logs yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

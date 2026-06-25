@@ -1,0 +1,85 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Reminder Engine</h1>
+                <p>Configurable due-date tracking based on Firm Settings</p>
+            </div>
+            <div class="profile">Reminder Days: {{ summary.reminder_days|join(", ") }}</div>
+        </header>
+
+        <section class="metrics">
+            <div class="card danger">
+                <span>Overdue</span>
+                <h2>{{ summary.overdue_count }}</h2>
+                <p>Past due date</p>
+            </div>
+
+            <div class="card warning">
+                <span>Due Today</span>
+                <h2>{{ summary.due_today_count }}</h2>
+                <p>Requires action today</p>
+            </div>
+
+            <div class="card">
+                <span>Upcoming</span>
+                <h2>{{ summary.upcoming_count }}</h2>
+                <p>Based on firm reminder days</p>
+            </div>
+
+            <div class="card success">
+                <span>Total Alerts</span>
+                <h2>{{ summary.overdue_count + summary.due_today_count + summary.upcoming_count }}</h2>
+                <p>Reminder queue</p>
+            </div>
+        </section>
+
+        <section class="panels">
+            <div class="panel large">
+                <h3>Overdue Tasks</h3>
+                {% for task in summary.overdue %}
+                    <div class="mini-list-item">
+                        <strong>{{ task.client.business_name }} — {{ task.form_name }}</strong>
+                        <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }} • Due: {{ task.due_date.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                {% else %}
+                    <p>No overdue tasks.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h3>Due Today</h3>
+                {% for task in summary.due_today %}
+                    <div class="mini-list-item">
+                        <strong>{{ task.client.business_name }} — {{ task.form_name }}</strong>
+                        <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }}</span>
+                    </div>
+                {% else %}
+                    <p>No tasks due today.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% for group in summary.upcoming_groups %}
+        <section class="panel approval-history">
+            <h3>Due in {{ group.days }} Day{{ "" if group.days == 1 else "s" }}</h3>
+            <p>{{ group.count }} task{{ "" if group.count == 1 else "s" }} found.</p>
+
+            {% for task in group.tasks %}
+                <div class="mini-list-item">
+                    <strong>{{ task.client.business_name }} — {{ task.form_name }}</strong>
+                    <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }} • Due: {{ task.due_date.strftime("%d-%m-%Y") }}</span>
+                </div>
+            {% else %}
+                <p>No tasks due in {{ group.days }} day{{ "" if group.days == 1 else "s" }}.</p>
+            {% endfor %}
+        </section>
+        {% endfor %}
+    </main>
+</div>
+{% endblock %}

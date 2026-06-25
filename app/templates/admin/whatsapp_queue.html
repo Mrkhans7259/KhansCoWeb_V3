@@ -1,0 +1,222 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>WhatsApp Reminder Queue</h1>
+                <p>Review, open reminders in WhatsApp Web, then mark as sent</p>
+            </div>
+            <div class="profile">Queue: {{ queue|length }}</div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="metrics">
+            <div class="card">
+                <span>Total Queue</span>
+                <h2>{{ queue|length }}</h2>
+                <p>Filtered messages</p>
+            </div>
+
+            <div class="card success">
+                <span>Sent</span>
+                <h2>{{ queue|selectattr("whatsapp_sent", "equalto", true)|list|length }}</h2>
+                <p>Marked as sent</p>
+            </div>
+
+            <div class="card warning">
+                <span>Pending Send</span>
+                <h2>{{ queue|rejectattr("whatsapp_sent", "equalto", true)|list|length }}</h2>
+                <p>Not yet marked sent</p>
+            </div>
+
+            <div class="card danger">
+                <span>Overdue</span>
+                <h2>{{ queue|selectattr("priority", "equalto", "danger")|list|length }}</h2>
+                <p>Urgent reminders</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Smart Queue Filters</h3>
+            <form method="GET" class="smart-filter">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search client, mobile, form">
+
+                <select name="reminder_type">
+                    <option value="">All Reminder Types</option>
+                    <option value="danger" {% if selected_reminder_type == "danger" %}selected{% endif %}>Overdue</option>
+                    <option value="warning" {% if selected_reminder_type == "warning" %}selected{% endif %}>Due Today</option>
+                    <option value="info" {% if selected_reminder_type == "info" %}selected{% endif %}>Upcoming</option>
+                </select>
+
+                <select name="send_status">
+                    <option value="">All Send Status</option>
+                    <option value="pending" {% if selected_send_status == "pending" %}selected{% endif %}>Pending Only</option>
+                    <option value="sent" {% if selected_send_status == "sent" %}selected{% endif %}>Sent Only</option>
+                    <option value="sent_today" {% if selected_send_status == "sent_today" %}selected{% endif %}>Sent Today</option>
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.whatsapp_queue') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="queue-header">
+                <div>
+                    <h3>Prepared WhatsApp Messages</h3>
+                    <p>Open WhatsApp Web, send manually, then mark the reminder as sent.</p>
+                </div>
+
+                <div class="bulk-toolbar">
+                    <button type="button" onclick="selectAllQueue()">Select All</button>
+                    <button type="button" onclick="clearAllQueue()">Clear</button>
+                    <button type="button" onclick="openSelectedWhatsApp()">Open Selected</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Client</th>
+                            <th>Mobile</th>
+                            <th>Form</th>
+                            <th>Period</th>
+                            <th>Due</th>
+                            <th>Reminder</th>
+                            <th>Send Status</th>
+                            <th>Message</th>
+                            <th>WhatsApp</th>
+                            <th>Mark Sent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in queue %}
+                        <tr>
+                            <td>
+                                {% if item.mobile and not item.whatsapp_sent %}
+                                    <input type="checkbox"
+                                           class="queue-checkbox"
+                                           data-wa="https://wa.me/91{{ item.mobile|replace(' ', '')|replace('-', '') }}?text={{ item.message|urlencode }}">
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <strong>{{ item.business_name }}</strong><br>
+                                <span>{{ item.client_name }}</span>
+                            </td>
+
+                            <td>{{ item.mobile or "No mobile" }}</td>
+                            <td>{{ item.form_name }}</td>
+                            <td>{{ item.period or "-" }}</td>
+                            <td>{{ item.due_date }}</td>
+                            <td><span class="badge {{ item.priority }}">{{ item.reminder_label }}</span></td>
+
+                            <td>
+                                {% if item.whatsapp_sent %}
+                                    <span class="badge active">Sent</span><br>
+                                    <small>
+                                        {{ item.whatsapp_sent_at.strftime("%d-%m-%Y %I:%M %p") if item.whatsapp_sent_at else "" }}
+                                        {% if item.whatsapp_sent_by %}
+                                            <br>By {{ item.whatsapp_sent_by }}
+                                        {% endif %}
+                                    </small>
+                                {% else %}
+                                    <span class="badge pending">Pending</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <details>
+                                    <summary>Preview</summary>
+                                    <pre class="message-preview" id="msg-{{ loop.index }}">{{ item.message }}</pre>
+                                    <button type="button" class="copy-btn" onclick="copyMessage('msg-{{ loop.index }}')">Copy Message</button>
+                                </details>
+                            </td>
+
+                            <td>
+                                {% if item.mobile and not item.whatsapp_sent %}
+                                    <a class="top-action"
+                                       target="_blank"
+                                       href="https://wa.me/91{{ item.mobile|replace(' ', '')|replace('-', '') }}?text={{ item.message|urlencode }}">
+                                        Open
+                                    </a>
+                                {% elif item.whatsapp_sent %}
+                                    <span class="badge active">Done</span>
+                                {% else %}
+                                    <span class="badge danger">No Mobile</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if item.mobile and not item.whatsapp_sent %}
+                                    <form method="POST" action="{{ url_for('admin.mark_whatsapp_sent', task_id=item.task_id) }}">
+                                        <button type="submit" class="mark-sent-btn">Mark Sent</button>
+                                    </form>
+                                {% elif item.whatsapp_sent %}
+                                    <span class="badge active">Recorded</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="11" class="empty">No reminder messages in queue.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+function selectAllQueue() {
+    document.querySelectorAll('.queue-checkbox').forEach(cb => cb.checked = true);
+}
+
+function clearAllQueue() {
+    document.querySelectorAll('.queue-checkbox').forEach(cb => cb.checked = false);
+}
+
+function openSelectedWhatsApp() {
+    const selected = Array.from(document.querySelectorAll('.queue-checkbox:checked'));
+
+    if (selected.length === 0) {
+        alert("Please select at least one reminder.");
+        return;
+    }
+
+    selected.forEach((cb, index) => {
+        setTimeout(() => {
+            window.open(cb.dataset.wa, "_blank");
+        }, index * 800);
+    });
+}
+
+function copyMessage(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Message copied.");
+    });
+}
+</script>
+{% endblock %}

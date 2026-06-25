@@ -1,0 +1,63 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Notification Center</h1>
+                <p>Important alerts, reminders and system updates</p>
+            </div>
+
+            <div class="profile-actions">
+                <div class="profile">Unread: {{ unread_count }}</div>
+                <form method="POST" action="{{ url_for('admin.mark_all_notifications_read') }}">
+                    <button class="top-action" type="submit">Mark All Read</button>
+                </form>
+            </div>
+        </header>
+
+        <section class="panel">
+            <h3>Recent Notifications</h3>
+            <p>Showing latest 200 notifications.</p>
+
+            <div class="notification-list">
+                {% for item in notifications %}
+                    <div class="notification-item {% if not item.is_read %}unread{% endif %}">
+                        <div class="notification-icon {{ item.notification_type }}">
+                            {% if item.notification_type == "success" %}✓
+                            {% elif item.notification_type == "warning" %}!
+                            {% elif item.notification_type == "danger" %}×
+                            {% else %}i
+                            {% endif %}
+                        </div>
+
+                        <div class="notification-content">
+                            <div class="notification-head">
+                                <strong>{{ item.title }}</strong>
+                                <span>{{ item.created_at.strftime("%d-%m-%Y %I:%M %p") }}</span>
+                            </div>
+
+                            <p>{{ item.message or "-" }}</p>
+
+                            <div class="notification-meta">
+                                <span>{{ item.module or "System" }}</span>
+                                {% if item.record_type %}
+                                    <span>{{ item.record_type }} #{{ item.record_id or "-" }}</span>
+                                {% endif %}
+                                {% if not item.is_read %}
+                                    <span class="unread-pill">Unread</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty">No notifications yet.</div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

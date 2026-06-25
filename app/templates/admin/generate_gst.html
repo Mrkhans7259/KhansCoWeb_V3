@@ -1,0 +1,102 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Auto GST Task Generator</h1>
+                <p>Create GSTR-1, GSTR-3B, CMP-08 or GSTR-9 tasks for multiple clients</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.compliance_dashboard') }}">Back</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <form method="POST" class="client-form">
+                <h3>GST Period</h3>
+
+                <div class="grid-2">
+                    <div>
+                        <label>Period Month</label>
+                        <select name="period_month" required>
+                            <option value="">Select Month</option>
+                            {% for month in ["April","May","June","July","August","September","October","November","December","January","February","March"] %}
+                                <option value="{{ month }}">{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Period Year</label>
+                        <input name="period_year" placeholder="2025-26" required>
+                    </div>
+
+                    <div>
+                        <label>Due Date</label>
+                        <input type="date" name="due_date">
+                    </div>
+
+                    <div>
+                        <label>Assigned Staff</label>
+                        <input name="assigned_staff" placeholder="Staff name">
+                    </div>
+                </div>
+
+                <h3 class="section-title">GST Forms</h3>
+
+                <div class="checkbox-grid">
+                    <label><input type="checkbox" name="forms" value="GSTR-1"> GSTR-1</label>
+                    <label><input type="checkbox" name="forms" value="GSTR-3B"> GSTR-3B</label>
+                    <label><input type="checkbox" name="forms" value="CMP-08"> CMP-08</label>
+                    <label><input type="checkbox" name="forms" value="GSTR-9"> GSTR-9</label>
+                </div>
+
+                <h3 class="section-title">Select Clients</h3>
+
+                <div class="bulk-toolbar">
+                    <button type="button" onclick="selectAllClients()">Select All</button>
+                    <button type="button" onclick="clearAllClients()">Clear All</button>
+                </div>
+
+                <div class="client-select-list">
+                    {% for client in clients %}
+                    <label class="client-select-item">
+                        <input type="checkbox" name="client_ids" value="{{ client.id }}">
+                        <div>
+                            <strong>{{ client.business_name }}</strong>
+                            <span>{{ client.client_code }} • {{ client.gstin or "No GSTIN" }} • {{ client.return_frequency or "No frequency" }}</span>
+                        </div>
+                    </label>
+                    {% else %}
+                    <p>No active clients found.</p>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="save-btn">Generate GST Tasks</button>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+function selectAllClients() {
+    document.querySelectorAll('input[name="client_ids"]').forEach(cb => cb.checked = true);
+}
+
+function clearAllClients() {
+    document.querySelectorAll('input[name="client_ids"]').forEach(cb => cb.checked = false);
+}
+</script>
+{% endblock %}

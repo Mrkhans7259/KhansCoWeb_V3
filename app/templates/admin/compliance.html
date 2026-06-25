@@ -8,9 +8,14 @@
         <header class="topbar">
             <div>
                 <h1>Compliance Center</h1>
-                <p>Track GST, Income Tax, TDS, ROC and other compliance tasks</p>
+                <p>Search, filter and track GST, Income Tax, TDS, ROC and other tasks</p>
             </div>
-            <div class="profile">Total Tasks: {{ tasks|length }}</div>
+            
+<div class="profile-actions">
+    <a class="top-action" href="{{ url_for('admin.generate_gst_tasks') }}">+ Auto GST Generate</a>
+    <div class="profile">Filtered Tasks: {{ total_tasks }}</div>
+</div>
+
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -26,32 +31,67 @@
         <section class="metrics">
             <div class="card">
                 <span>Total Tasks</span>
-                <h2>{{ tasks|length }}</h2>
-                <p>All compliance records</p>
+                <h2>{{ total_tasks }}</h2>
+                <p>Current filtered results</p>
             </div>
 
             <div class="card warning">
                 <span>Pending</span>
-                <h2>{{ tasks|selectattr("status", "equalto", "pending")|list|length }}</h2>
+                <h2>{{ pending_tasks }}</h2>
                 <p>Yet to be filed</p>
             </div>
 
             <div class="card success">
                 <span>Filed</span>
-                <h2>{{ tasks|selectattr("status", "equalto", "filed")|list|length }}</h2>
+                <h2>{{ filed_tasks }}</h2>
                 <p>Completed filings</p>
             </div>
 
             <div class="card danger">
                 <span>Overdue</span>
-                <h2>{{ tasks|selectattr("status", "equalto", "overdue")|list|length }}</h2>
+                <h2>{{ overdue_tasks }}</h2>
                 <p>Needs attention</p>
             </div>
         </section>
 
         <section class="panel">
+            <h3>Smart Filters</h3>
+            <p>Filter compliance work by client, type, status and period.</p>
+
+            <form method="GET" class="smart-filter">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search client, GSTIN, PAN, form">
+
+                <select name="compliance_type">
+                    <option value="">All Types</option>
+                    {% for item in ["GST", "Income Tax", "TDS", "ROC", "PF", "ESI", "Other"] %}
+                        <option value="{{ item }}" {% if selected_type == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="status">
+                    <option value="">All Status</option>
+                    {% for item in ["pending", "filed", "overdue", "not_applicable"] %}
+                        <option value="{{ item }}" {% if selected_status == item %}selected{% endif %}>{{ item|replace("_", " ")|title }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="period_month">
+                    <option value="">All Months</option>
+                    {% for month in ["April","May","June","July","August","September","October","November","December","January","February","March"] %}
+                        <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>{{ month }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" name="period_year" value="{{ selected_year }}" placeholder="Year e.g. 2025-26">
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.compliance_dashboard') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
             <h3>Compliance Tasks</h3>
-            <p>All client compliance tasks in one place.</p>
+            <p>All matching compliance records.</p>
 
             <div class="table-wrap">
                 <table class="enterprise-table">
@@ -72,13 +112,17 @@
                     <tbody>
                         {% for task in tasks %}
                         <tr>
-                            <td><strong>{{ task.client.business_name }}</strong></td>
+                            <td>
+                                <a class="table-link" href="{{ url_for('admin.view_client', client_id=task.client.id) }}">
+                                    {{ task.client.business_name }}
+                                </a>
+                            </td>
                             <td>{{ task.compliance_type }}</td>
                             <td>{{ task.form_name }}</td>
                             <td>{{ task.period_month or "-" }} {{ task.period_year or "" }}</td>
                             <td>{{ task.due_date.strftime("%d-%m-%Y") if task.due_date else "-" }}</td>
                             <td>{{ task.filing_date.strftime("%d-%m-%Y") if task.filing_date else "-" }}</td>
-                            <td><span class="badge {{ task.status }}">{{ task.status }}</span></td>
+                            <td><span class="badge {{ task.status }}">{{ task.status|replace("_", " ") }}</span></td>
                             <td>{{ task.arn or "-" }}</td>
                             <td>{{ task.assigned_staff or "-" }}</td>
                             <td>
@@ -92,7 +136,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="10" class="empty">No compliance tasks yet. Open a client workspace and add one.</td>
+                            <td colspan="10" class="empty">No compliance tasks found for selected filters.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

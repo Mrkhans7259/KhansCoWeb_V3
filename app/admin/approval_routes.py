@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, session, flash
 from app.admin import admin_bp
 from app.database.db import db
 from app.database.models import User
+from app.utils.route_guards import require_client_management
 
 
 def admin_required():
@@ -9,6 +10,7 @@ def admin_required():
 
 
 @admin_bp.route("/client-approvals")
+@require_client_management
 def client_approvals():
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -26,6 +28,7 @@ def client_approvals():
 
 
 @admin_bp.route("/client-approvals/<int:user_id>/approve", methods=["POST"])
+@require_client_management
 def approve_client(user_id):
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -44,6 +47,7 @@ def approve_client(user_id):
 
 
 @admin_bp.route("/client-approvals/<int:user_id>/reject", methods=["POST"])
+@require_client_management
 def reject_client(user_id):
     if not admin_required():
         return redirect(url_for("auth.login"))

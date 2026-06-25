@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, session, request, flash
 from app.admin import admin_bp
 from app.database.db import db
 from app.database.models import Staff
+from app.utils.route_guards import require_staff_management
 
 
 def admin_required():
@@ -16,6 +17,7 @@ def get_next_staff_code():
 
 
 @admin_bp.route("/staff")
+@require_staff_management
 def staff():
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -37,6 +39,7 @@ def staff():
 
 
 @admin_bp.route("/staff/add", methods=["GET", "POST"])
+@require_staff_management
 def add_staff():
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -55,6 +58,7 @@ def add_staff():
 
 
 @admin_bp.route("/staff/<int:staff_id>/edit", methods=["GET", "POST"])
+@require_staff_management
 def edit_staff(staff_id):
     if not admin_required():
         return redirect(url_for("auth.login"))
@@ -72,6 +76,7 @@ def edit_staff(staff_id):
 
 
 @admin_bp.route("/staff/<int:staff_id>/delete", methods=["POST"])
+@require_staff_management
 def delete_staff(staff_id):
     if not admin_required():
         return redirect(url_for("auth.login"))
