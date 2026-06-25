@@ -1,0 +1,180 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar workspace-topbar">
+            <div>
+                <h1>{{ client.business_name }}</h1>
+                <p>Client Workspace • {{ client.client_code }} • {{ client.client_name }}</p>
+            </div>
+
+            <div class="profile-actions">
+                <a class="top-action secondary" href="{{ url_for('admin.clients') }}">Back</a>
+                <a class="top-action" href="{{ url_for('admin.edit_client', client_id=client.id) }}">Edit Client</a>
+                <a class="top-action" href="{{ url_for('admin.add_compliance_task', client_id=client.id) }}">+ Add Compliance</a>
+            </div>
+        </header>
+
+        <section class="workspace-hero">
+            <div class="workspace-identity">
+                <div class="workspace-avatar">
+                    {{ client.business_name[:1]|upper }}
+                </div>
+                <div>
+                    <h2>{{ client.business_name }}</h2>
+                    <p>{{ client.client_name }} • {{ client.mobile or "No mobile" }} • {{ client.email or "No email" }}</p>
+                    <div class="workspace-badges">
+                        <span class="badge {{ client.status }}">{{ client.status }}</span>
+                        <span class="badge doc-badge">GSTIN: {{ client.gstin or "-" }}</span>
+                        <span class="badge doc-badge">PAN: {{ client.pan or "-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="metrics">
+            <div class="card"><span>Documents</span><h2>{{ documents_count }}</h2><p>Total uploaded files</p></div>
+            <div class="card warning"><span>Pending Tasks</span><h2>{{ pending_tasks|length }}</h2><p>Compliance pending</p></div>
+            <div class="card success"><span>Filed Tasks</span><h2>{{ filed_tasks|length }}</h2><p>Completed filings</p></div>
+            <div class="card danger"><span>Overdue Tasks</span><h2>{{ overdue_tasks|length }}</h2><p>Needs attention</p></div>
+        </section>
+
+        <section class="workspace-tabs-bar">
+            <a class="active" href="#overview">Overview</a>
+            <a href="{{ url_for('admin.client_documents', client_id=client.id) }}">Documents</a>
+            <a href="#compliance">Compliance</a>
+            <a href="#income-tax">Income Tax</a>
+            <a href="#fees">Fees</a>
+            <a href="#timeline">Timeline</a>
+            <a href="#ai">AI Assistant</a>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel large" id="overview">
+                <h3>Overview</h3>
+                <div class="detail-grid">
+                    <div><span>Business Name</span><strong>{{ client.business_name }}</strong></div>
+                    <div><span>Client Name</span><strong>{{ client.client_name }}</strong></div>
+                    <div><span>Mobile</span><strong>{{ client.mobile or "-" }}</strong></div>
+                    <div><span>Email</span><strong>{{ client.email or "-" }}</strong></div>
+                    <div><span>Constitution</span><strong>{{ client.constitution or "-" }}</strong></div>
+                    <div><span>Registration Type</span><strong>{{ client.registration_type or "-" }}</strong></div>
+                    <div><span>City</span><strong>{{ client.city or "-" }}</strong></div>
+                    <div><span>State</span><strong>{{ client.state or "-" }}</strong></div>
+                    <div><span>Pincode</span><strong>{{ client.pincode or "-" }}</strong></div>
+                    <div><span>Assigned Staff</span><strong>{{ client.assigned_staff or "-" }}</strong></div>
+                </div>
+            </div>
+
+            <div class="panel" id="documents">
+                <h3>Recent Documents</h3>
+                {% for doc in recent_documents %}
+                    <div class="mini-list-item">
+                        <strong>{{ doc.title }}</strong>
+                        <span>{{ doc.category }} • {{ doc.created_at.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                {% else %}
+                    <p>No documents uploaded yet.</p>
+                {% endfor %}
+                <a class="inline-action" href="{{ url_for('admin.client_documents', client_id=client.id) }}">Open Document Vault</a>
+            </div>
+
+            <div class="panel large" id="compliance">
+                <h3>Compliance Summary</h3>
+                <p>Client-specific GST, Income Tax, TDS, ROC and other compliance tasks.</p>
+
+                <div class="compliance-summary-grid">
+                    <div>
+                        <span>Total</span>
+                        <strong>{{ compliance_tasks|length }}</strong>
+                    </div>
+                    <div>
+                        <span>Pending</span>
+                        <strong>{{ pending_tasks|length }}</strong>
+                    </div>
+                    <div>
+                        <span>Filed</span>
+                        <strong>{{ filed_tasks|length }}</strong>
+                    </div>
+                    <div>
+                        <span>Overdue</span>
+                        <strong>{{ overdue_tasks|length }}</strong>
+                    </div>
+                </div>
+
+                <div class="next-due-box">
+                    {% if next_due_task %}
+                        <span>Next Due</span>
+                        <strong>{{ next_due_task.form_name }} — {{ next_due_task.due_date.strftime("%d-%m-%Y") }}</strong>
+                        <p>{{ next_due_task.compliance_type }} • {{ next_due_task.period_month or "-" }} {{ next_due_task.period_year or "" }}</p>
+                    {% else %}
+                        <span>Next Due</span>
+                        <strong>No upcoming due date</strong>
+                        <p>Add compliance tasks with due dates to track deadlines.</p>
+                    {% endif %}
+                </div>
+
+                <div class="workspace-actions-row">
+                    <a class="inline-action" href="{{ url_for('admin.add_compliance_task', client_id=client.id) }}">+ Add Compliance</a>
+                    <a class="inline-action secondary-inline" href="{{ url_for('admin.compliance_dashboard') }}">Open Compliance Center</a>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Recent Compliance Tasks</h3>
+                {% for task in recent_compliance_tasks %}
+                    <div class="mini-list-item">
+                        <strong>{{ task.form_name }} — {{ task.status|title }}</strong>
+                        <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }}</span>
+                    </div>
+                {% else %}
+                    <p>No compliance tasks yet.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel" id="income-tax">
+                <h3>Income Tax Workspace</h3>
+                <p>ITR status, tax documents, computation and filing records will appear here.</p>
+                <div class="placeholder-box">Income Tax module coming later</div>
+            </div>
+
+            <div class="panel" id="fees">
+                <h3>Fees & Payments</h3>
+                <p>Invoices, receipts, outstanding fees and payment reminders will appear here.</p>
+                <div class="placeholder-box">Fee Tracker coming later</div>
+            </div>
+
+            <div class="panel large" id="timeline">
+                <h3>Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Client record created</strong>
+                        <span>{{ client.created_at.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                    {% for doc in recent_documents %}
+                    <div class="timeline-item">
+                        <strong>Document uploaded: {{ doc.title }}</strong>
+                        <span>{{ doc.created_at.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                    {% endfor %}
+                    {% for task in recent_compliance_tasks %}
+                    <div class="timeline-item">
+                        <strong>Compliance updated: {{ task.form_name }} — {{ task.status|title }}</strong>
+                        <span>{{ task.created_at.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="panel" id="ai">
+                <h3>AI Assistant</h3>
+                <p>Future AI tools will summarize documents, detect missing compliance items and answer client-specific queries.</p>
+                <div class="placeholder-box">AI Assistant coming later</div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, session, request, flash
 from app.admin import admin_bp
 from app.database.db import db
-from app.database.models import Client
+from app.database.models import Client, ClientDocument, ComplianceTask
 
 
 def admin_required():
@@ -58,7 +58,45 @@ def view_client(client_id):
         return redirect(url_for("auth.login"))
 
     client = Client.query.get_or_404(client_id)
-    return render_template("admin/client_profile.html", client=client)
+
+    documents_count = ClientDocument.query.filter_by(client_id=client.id).count()
+
+    recent_documents = (
+        ClientDocument.query
+        .filter_by(client_id=client.id)
+        .order_by(ClientDocument.id.desc())
+        .limit(5)
+        .all()
+    )
+
+    compliance_tasks = (
+        ComplianceTask.query
+        .filter_by(client_id=client.id)
+        .order_by(ComplianceTask.id.desc())
+        .all()
+    )
+
+    pending_tasks = [task for task in compliance_tasks if task.status == "pending"]
+    filed_tasks = [task for task in compliance_tasks if task.status == "filed"]
+    overdue_tasks = [task for task in compliance_tasks if task.status == "overdue"]
+
+    dated_pending = [task for task in compliance_tasks if task.due_date and task.status != "filed"]
+    next_due_task = sorted(dated_pending, key=lambda task: task.due_date)[0] if dated_pending else None
+
+    recent_compliance_tasks = compliance_tasks[:5]
+
+    return render_template(
+        "admin/client_workspace.html",
+        client=client,
+        documents_count=documents_count,
+        recent_documents=recent_documents,
+        compliance_tasks=compliance_tasks,
+        pending_tasks=pending_tasks,
+        filed_tasks=filed_tasks,
+        overdue_tasks=overdue_tasks,
+        next_due_task=next_due_task,
+        recent_compliance_tasks=recent_compliance_tasks
+    )
 
 
 @admin_bp.route("/clients/<int:client_id>/edit", methods=["GET", "POST"])

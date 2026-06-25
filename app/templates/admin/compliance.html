@@ -1,0 +1,104 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Compliance Center</h1>
+                <p>Track GST, Income Tax, TDS, ROC and other compliance tasks</p>
+            </div>
+            <div class="profile">Total Tasks: {{ tasks|length }}</div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="metrics">
+            <div class="card">
+                <span>Total Tasks</span>
+                <h2>{{ tasks|length }}</h2>
+                <p>All compliance records</p>
+            </div>
+
+            <div class="card warning">
+                <span>Pending</span>
+                <h2>{{ tasks|selectattr("status", "equalto", "pending")|list|length }}</h2>
+                <p>Yet to be filed</p>
+            </div>
+
+            <div class="card success">
+                <span>Filed</span>
+                <h2>{{ tasks|selectattr("status", "equalto", "filed")|list|length }}</h2>
+                <p>Completed filings</p>
+            </div>
+
+            <div class="card danger">
+                <span>Overdue</span>
+                <h2>{{ tasks|selectattr("status", "equalto", "overdue")|list|length }}</h2>
+                <p>Needs attention</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Compliance Tasks</h3>
+            <p>All client compliance tasks in one place.</p>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Form</th>
+                            <th>Period</th>
+                            <th>Due Date</th>
+                            <th>Filing Date</th>
+                            <th>Status</th>
+                            <th>ARN / Ref</th>
+                            <th>Staff</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr>
+                            <td><strong>{{ task.client.business_name }}</strong></td>
+                            <td>{{ task.compliance_type }}</td>
+                            <td>{{ task.form_name }}</td>
+                            <td>{{ task.period_month or "-" }} {{ task.period_year or "" }}</td>
+                            <td>{{ task.due_date.strftime("%d-%m-%Y") if task.due_date else "-" }}</td>
+                            <td>{{ task.filing_date.strftime("%d-%m-%Y") if task.filing_date else "-" }}</td>
+                            <td><span class="badge {{ task.status }}">{{ task.status }}</span></td>
+                            <td>{{ task.arn or "-" }}</td>
+                            <td>{{ task.assigned_staff or "-" }}</td>
+                            <td>
+                                <div class="action-links">
+                                    <a href="{{ url_for('admin.edit_compliance_task', task_id=task.id) }}">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_compliance_task', task_id=task.id) }}" onsubmit="return confirm('Delete this compliance task?');">
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="10" class="empty">No compliance tasks yet. Open a client workspace and add one.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

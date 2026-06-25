@@ -1,0 +1,97 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Document Vault</h1>
+                <p>{{ client.business_name }} — {{ client.client_code }}</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.view_client', client_id=client.id) }}">Back to Client</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panels">
+            <div class="panel">
+                <h3>Upload Document</h3>
+                <p>Add GST, Income Tax, Bank, Invoice, ROC or other client files.</p>
+
+                <form method="POST" enctype="multipart/form-data" class="client-form">
+                    <label>Document Title</label>
+                    <input name="title" placeholder="Example: April Sales Register">
+
+                    <label>Category</label>
+                    <select name="category">
+                        {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label>Choose File</label>
+                    <input type="file" name="document" required>
+
+                    <label>Notes</label>
+                    <textarea name="notes" rows="4" placeholder="Optional notes"></textarea>
+
+                    <button type="submit" class="save-btn">Upload Document</button>
+                </form>
+            </div>
+
+            <div class="panel large">
+                <h3>Uploaded Documents</h3>
+                <p>Total files: {{ documents|length }}</p>
+
+                <div class="table-wrap">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Title</th>
+                                <th>File</th>
+                                <th>Size</th>
+                                <th>Uploaded</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in documents %}
+                            <tr>
+                                <td><span class="badge doc-badge">{{ doc.category }}</span></td>
+                                <td><strong>{{ doc.title }}</strong></td>
+                                <td>{{ doc.original_filename }}</td>
+                                <td>{{ "%.2f"|format((doc.file_size or 0) / 1024) }} KB</td>
+                                <td>{{ doc.created_at.strftime("%d-%m-%Y") }}</td>
+                                <td>
+                                    <div class="action-links">
+                                        <a href="{{ url_for('admin.download_document', document_id=doc.id) }}">Download</a>
+                                        <form method="POST" action="{{ url_for('admin.delete_document', document_id=doc.id) }}" onsubmit="return confirm('Delete this document?');">
+                                            <button type="submit">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="empty">No documents uploaded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

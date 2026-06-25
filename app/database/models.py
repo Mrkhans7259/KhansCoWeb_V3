@@ -56,6 +56,8 @@ class Client(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    documents = db.relationship("ClientDocument", backref="client", cascade="all, delete-orphan")
+
 
 class Staff(db.Model):
     __tablename__ = "staff"
@@ -75,3 +77,51 @@ class Staff(db.Model):
     address = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ClientDocument(db.Model):
+    __tablename__ = "client_documents"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False, index=True)
+
+    category = db.Column(db.String(80), nullable=False, default="Other")
+    title = db.Column(db.String(180), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)
+    stored_filename = db.Column(db.String(255), nullable=False)
+
+    file_size = db.Column(db.Integer, nullable=True)
+    mime_type = db.Column(db.String(120), nullable=True)
+
+    notes = db.Column(db.Text, nullable=True)
+    uploaded_by = db.Column(db.String(120), nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ComplianceTask(db.Model):
+    __tablename__ = "compliance_tasks"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False, index=True)
+
+    compliance_type = db.Column(db.String(50), nullable=False, default="GST")
+    form_name = db.Column(db.String(50), nullable=False)
+
+    period_month = db.Column(db.String(20), nullable=True)
+    period_year = db.Column(db.String(10), nullable=True)
+
+    due_date = db.Column(db.Date, nullable=True)
+    filing_date = db.Column(db.Date, nullable=True)
+
+    status = db.Column(db.String(30), nullable=False, default="pending")
+
+    arn = db.Column(db.String(100), nullable=True)
+    assigned_staff = db.Column(db.String(120), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    client = db.relationship("Client", backref="compliance_tasks")

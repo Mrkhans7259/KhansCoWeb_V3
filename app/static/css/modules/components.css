@@ -134,3 +134,240 @@
 .approval-history {
     margin-top: 22px;
 }
+
+.workspace-tabs a {
+    border: 1px solid var(--kc-border);
+    background: var(--kc-blue);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.doc-badge {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.workspace-topbar {
+    align-items: center;
+}
+
+.workspace-hero {
+    background: linear-gradient(135deg, #0f172a, #1e40af);
+    color: white;
+    border-radius: 28px;
+    padding: 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+}
+
+.workspace-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.workspace-avatar {
+    width: 82px;
+    height: 82px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, var(--kc-gold), #fff);
+    color: var(--kc-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    font-weight: 900;
+}
+
+.workspace-identity h2 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.workspace-identity p {
+    color: #dbeafe;
+    margin-bottom: 12px;
+}
+
+.workspace-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.workspace-tabs-bar {
+    background: white;
+    border: 1px solid var(--kc-border);
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.workspace-tabs-bar a {
+    padding: 11px 14px;
+    border-radius: 14px;
+    color: var(--kc-primary);
+    font-weight: 900;
+    background: #f8fafc;
+}
+
+.workspace-tabs-bar a.active,
+.workspace-tabs-bar a:hover {
+    background: var(--kc-blue);
+    color: white;
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 22px;
+}
+
+.mini-list-item {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.mini-list-item strong {
+    display: block;
+    color: var(--kc-primary);
+    margin-bottom: 5px;
+}
+
+.mini-list-item span {
+    color: var(--kc-muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.inline-action {
+    display: inline-flex;
+    margin-top: 12px;
+    background: var(--kc-blue);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 14px;
+    font-weight: 900;
+}
+
+.placeholder-box {
+    margin-top: 16px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 18px;
+    color: var(--kc-muted);
+    font-weight: 900;
+    text-align: center;
+}
+
+.timeline {
+    display: grid;
+    gap: 14px;
+}
+
+.timeline-item {
+    border-left: 4px solid var(--kc-blue);
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 14px 16px;
+}
+
+.timeline-item strong {
+    display: block;
+    color: var(--kc-primary);
+    margin-bottom: 5px;
+}
+
+.timeline-item span {
+    color: var(--kc-muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+@media(max-width:950px) {
+    .workspace-identity {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .workspace-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.compliance-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.compliance-summary-grid div {
+    background: #f8fafc;
+    border: 1px solid var(--kc-border);
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.compliance-summary-grid span {
+    display: block;
+    color: var(--kc-muted);
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.compliance-summary-grid strong {
+    font-size: 26px;
+    color: var(--kc-primary);
+}
+
+.next-due-box {
+    background: linear-gradient(135deg, #eff6ff, #f8fafc);
+    border: 1px solid #bfdbfe;
+    border-radius: 18px;
+    padding: 18px;
+    margin-top: 16px;
+}
+
+.next-due-box span {
+    display: block;
+    color: var(--kc-muted);
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.next-due-box strong {
+    display: block;
+    color: var(--kc-primary);
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.workspace-actions-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.secondary-inline {
+    background: #f1f5f9 !important;
+    color: var(--kc-primary) !important;
+}
+
+@media(max-width:950px) {
+    .compliance-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

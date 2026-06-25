@@ -1,0 +1,110 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{{ "Edit Compliance Task" if task else "Add Compliance Task" }}</h1>
+                <p>{{ client.business_name }} • {{ client.client_code }}</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.compliance_dashboard') }}">Back</a>
+        </header>
+
+        <section class="panel">
+            <form method="POST" class="client-form">
+                <div class="grid-2">
+                    <div>
+                        <label>Compliance Type</label>
+                        <select name="compliance_type" required>
+                            {% set current_type = task.compliance_type if task else "GST" %}
+                            <option value="GST" {% if current_type == "GST" %}selected{% endif %}>GST</option>
+                            <option value="Income Tax" {% if current_type == "Income Tax" %}selected{% endif %}>Income Tax</option>
+                            <option value="TDS" {% if current_type == "TDS" %}selected{% endif %}>TDS</option>
+                            <option value="ROC" {% if current_type == "ROC" %}selected{% endif %}>ROC</option>
+                            <option value="PF" {% if current_type == "PF" %}selected{% endif %}>PF</option>
+                            <option value="ESI" {% if current_type == "ESI" %}selected{% endif %}>ESI</option>
+                            <option value="Other" {% if current_type == "Other" %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Form / Return Name</label>
+                        <select name="form_name" required>
+                            {% set current_form = task.form_name if task else "GSTR-1" %}
+                            <option value="GSTR-1" {% if current_form == "GSTR-1" %}selected{% endif %}>GSTR-1</option>
+                            <option value="GSTR-3B" {% if current_form == "GSTR-3B" %}selected{% endif %}>GSTR-3B</option>
+                            <option value="CMP-08" {% if current_form == "CMP-08" %}selected{% endif %}>CMP-08</option>
+                            <option value="GSTR-9" {% if current_form == "GSTR-9" %}selected{% endif %}>GSTR-9</option>
+                            <option value="ITR-3" {% if current_form == "ITR-3" %}selected{% endif %}>ITR-3</option>
+                            <option value="ITR-5" {% if current_form == "ITR-5" %}selected{% endif %}>ITR-5</option>
+                            <option value="ITR-6" {% if current_form == "ITR-6" %}selected{% endif %}>ITR-6</option>
+                            <option value="24Q" {% if current_form == "24Q" %}selected{% endif %}>24Q</option>
+                            <option value="26Q" {% if current_form == "26Q" %}selected{% endif %}>26Q</option>
+                            <option value="AOC-4" {% if current_form == "AOC-4" %}selected{% endif %}>AOC-4</option>
+                            <option value="MGT-7" {% if current_form == "MGT-7" %}selected{% endif %}>MGT-7</option>
+                            <option value="Other" {% if current_form == "Other" %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Period Month</label>
+                        <select name="period_month">
+                            {% set current_month = task.period_month if task else "" %}
+                            <option value="">Select Month</option>
+                            {% for month in ["April","May","June","July","August","September","October","November","December","January","February","March"] %}
+                                <option value="{{ month }}" {% if current_month == month %}selected{% endif %}>{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Period Year</label>
+                        <input name="period_year" value="{{ task.period_year if task else '' }}" placeholder="2025-26">
+                    </div>
+
+                    <div>
+                        <label>Due Date</label>
+                        <input type="date" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') if task and task.due_date else '' }}">
+                    </div>
+
+                    <div>
+                        <label>Filing Date</label>
+                        <input type="date" name="filing_date" value="{{ task.filing_date.strftime('%Y-%m-%d') if task and task.filing_date else '' }}">
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+                        {% set current_status = task.status if task else "pending" %}
+                        <select name="status">
+                            <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
+                            <option value="filed" {% if current_status == "filed" %}selected{% endif %}>Filed</option>
+                            <option value="overdue" {% if current_status == "overdue" %}selected{% endif %}>Overdue</option>
+                            <option value="not_applicable" {% if current_status == "not_applicable" %}selected{% endif %}>Not Applicable</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>ARN / Reference No.</label>
+                        <input name="arn" value="{{ task.arn if task else '' }}" placeholder="Acknowledgement / Reference">
+                    </div>
+
+                    <div>
+                        <label>Assigned Staff</label>
+                        <input name="assigned_staff" value="{{ task.assigned_staff if task else '' }}" placeholder="Staff name">
+                    </div>
+                </div>
+
+                <label>Notes</label>
+                <textarea name="notes" rows="4" placeholder="Internal notes">{{ task.notes if task else '' }}</textarea>
+
+                <button type="submit" class="save-btn">
+                    {{ "Update Compliance Task" if task else "Save Compliance Task" }}
+                </button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}
