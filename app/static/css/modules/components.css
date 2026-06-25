@@ -115,3 +115,22 @@
     font-weight: 900;
     text-align: center;
 }
+
+.badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.approve-btn {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.approval-history {
+    margin-top: 22px;
+}

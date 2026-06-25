@@ -1,0 +1,116 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Client Approvals</h1>
+                <p>Review new client signup requests before portal access is allowed</p>
+            </div>
+            <div class="profile">Pending: {{ pending_clients|length }}</div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="metrics">
+            <div class="card warning"><span>Pending Requests</span><h2>{{ pending_clients|length }}</h2><p>Waiting for review</p></div>
+            <div class="card success"><span>Approved Clients</span><h2>{{ approved_clients|length }}</h2><p>Can access portal</p></div>
+            <div class="card danger"><span>Rejected Clients</span><h2>{{ rejected_clients|length }}</h2><p>Access blocked</p></div>
+            <div class="card"><span>Total Signups</span><h2>{{ pending_clients|length + approved_clients|length + rejected_clients|length }}</h2><p>Client portal users</p></div>
+        </section>
+
+        <section class="panel">
+            <h3>Pending Client Signup Requests</h3>
+            <p>Approve only verified clients of Khans & Co.</p>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Business</th>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>GSTIN</th>
+                            <th>PAN</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in pending_clients %}
+                        <tr>
+                            <td><strong>{{ user.business_name or "-" }}</strong></td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.mobile or "-" }}</td>
+                            <td>{{ user.gstin or "-" }}</td>
+                            <td>{{ user.pan or "-" }}</td>
+                            <td><span class="badge pending">Pending</span></td>
+                            <td>
+                                <div class="action-links">
+                                    <form method="POST" action="{{ url_for('admin.approve_client', user_id=user.id) }}">
+                                        <button type="submit" class="approve-btn">Approve</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin.reject_client', user_id=user.id) }}" onsubmit="return confirm('Reject this client signup?');">
+                                        <button type="submit">Reject</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="empty">No pending client approvals.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel approval-history">
+            <h3>Approved / Rejected History</h3>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Business</th>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in approved_clients + rejected_clients %}
+                        <tr>
+                            <td><strong>{{ user.business_name or "-" }}</strong></td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.mobile or "-" }}</td>
+                            <td><span class="badge {{ user.status }}">{{ user.status }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="empty">No approval history yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}
