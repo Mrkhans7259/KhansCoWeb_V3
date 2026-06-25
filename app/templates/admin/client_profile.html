@@ -1,0 +1,63 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{{ client.business_name }}</h1>
+                <p>Client Code: {{ client.client_code }}</p>
+            </div>
+            <div class="profile-actions">
+                <a class="top-action secondary" href="{{ url_for('admin.clients') }}">Back</a>
+                <a class="top-action" href="{{ url_for('admin.edit_client', client_id=client.id) }}">Edit Client</a>
+            </div>
+        </header>
+
+        <section class="metrics">
+            <div class="card"><span>Status</span><h2>{{ client.status|title }}</h2><p>Client account status</p></div>
+            <div class="card"><span>GSTIN</span><h2>{{ client.gstin or "-" }}</h2><p>GST registration</p></div>
+            <div class="card"><span>PAN</span><h2>{{ client.pan or "-" }}</h2><p>Income tax identity</p></div>
+            <div class="card"><span>Staff</span><h2>{{ client.assigned_staff or "-" }}</h2><p>Assigned staff</p></div>
+        </section>
+
+        <section class="panels">
+            <div class="panel large">
+                <h3>Business Information</h3>
+                <div class="detail-grid">
+                    <div><span>Business Name</span><strong>{{ client.business_name }}</strong></div>
+                    <div><span>Client Name</span><strong>{{ client.client_name }}</strong></div>
+                    <div><span>Mobile</span><strong>{{ client.mobile or "-" }}</strong></div>
+                    <div><span>Email</span><strong>{{ client.email or "-" }}</strong></div>
+                    <div><span>Constitution</span><strong>{{ client.constitution or "-" }}</strong></div>
+                    <div><span>Registration Type</span><strong>{{ client.registration_type or "-" }}</strong></div>
+                    <div><span>Return Frequency</span><strong>{{ client.return_frequency or "-" }}</strong></div>
+                    <div><span>City</span><strong>{{ client.city or "-" }}</strong></div>
+                    <div><span>State</span><strong>{{ client.state or "-" }}</strong></div>
+                    <div><span>Pincode</span><strong>{{ client.pincode or "-" }}</strong></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Address</h3>
+                <p>{{ client.address or "No address added." }}</p>
+            </div>
+
+            <div class="panel large">
+                <h3>Client Workspace</h3>
+                <div class="workspace-tabs">
+                    <button>GST</button>
+                    <button>Income Tax</button>
+                    <button>Documents</button>
+                    <button>Fees</button>
+                    <button>Timeline</button>
+                    <button>Notes</button>
+                </div>
+                <p class="muted">These sections will be connected in the next modules.</p>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

@@ -41,6 +41,7 @@
                             <th>GSTIN</th>
                             <th>PAN</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,10 +54,19 @@
                             <td>{{ client.gstin or "-" }}</td>
                             <td>{{ client.pan or "-" }}</td>
                             <td><span class="badge {{ client.status }}">{{ client.status }}</span></td>
+                            <td>
+                                <div class="action-links">
+                                    <a href="{{ url_for('admin.view_client', client_id=client.id) }}">View</a>
+                                    <a href="{{ url_for('admin.edit_client', client_id=client.id) }}">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_client', client_id=client.id) }}" onsubmit="return confirm('Delete this client?');">
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="7" class="empty">No clients found. Add your first client.</td>
+                            <td colspan="8" class="empty">No clients found. Add your first client.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

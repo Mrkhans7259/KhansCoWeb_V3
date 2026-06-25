@@ -7,8 +7,8 @@
     <main class="main">
         <header class="topbar">
             <div>
-                <h1>Add Client</h1>
-                <p>Create a new client master record</p>
+                <h1>{{ "Edit Client" if client else "Add Client" }}</h1>
+                <p>{{ "Update client master record" if client else "Create a new client master record" }}</p>
             </div>
             <a class="top-action secondary" href="{{ url_for('admin.clients') }}">Back</a>
         </header>
@@ -16,32 +16,32 @@
         <section class="panel">
             <form method="POST" class="client-form">
                 <div class="grid-2">
-                    <div><label>Business / Trade Name</label><input name="business_name" required></div>
-                    <div><label>Client Name</label><input name="client_name" required></div>
-                    <div><label>Mobile</label><input name="mobile"></div>
-                    <div><label>Email</label><input type="email" name="email"></div>
-                    <div><label>GSTIN</label><input name="gstin"></div>
-                    <div><label>PAN</label><input name="pan"></div>
-                    <div><label>Constitution</label><input name="constitution" placeholder="Proprietor / Firm / Company"></div>
-                    <div><label>Registration Type</label><input name="registration_type" placeholder="Regular / Composition"></div>
-                    <div><label>Return Frequency</label><input name="return_frequency" placeholder="Monthly / Quarterly"></div>
-                    <div><label>Assigned Staff</label><input name="assigned_staff"></div>
-                    <div><label>City</label><input name="city"></div>
-                    <div><label>State</label><input name="state"></div>
-                    <div><label>Pincode</label><input name="pincode"></div>
+                    <div><label>Business / Trade Name</label><input name="business_name" value="{{ client.business_name if client else '' }}" required></div>
+                    <div><label>Client Name</label><input name="client_name" value="{{ client.client_name if client else '' }}" required></div>
+                    <div><label>Mobile</label><input name="mobile" value="{{ client.mobile if client else '' }}"></div>
+                    <div><label>Email</label><input type="email" name="email" value="{{ client.email if client else '' }}"></div>
+                    <div><label>GSTIN</label><input name="gstin" value="{{ client.gstin if client else '' }}"></div>
+                    <div><label>PAN</label><input name="pan" value="{{ client.pan if client else '' }}"></div>
+                    <div><label>Constitution</label><input name="constitution" value="{{ client.constitution if client else '' }}"></div>
+                    <div><label>Registration Type</label><input name="registration_type" value="{{ client.registration_type if client else '' }}"></div>
+                    <div><label>Return Frequency</label><input name="return_frequency" value="{{ client.return_frequency if client else '' }}"></div>
+                    <div><label>Assigned Staff</label><input name="assigned_staff" value="{{ client.assigned_staff if client else '' }}"></div>
+                    <div><label>City</label><input name="city" value="{{ client.city if client else '' }}"></div>
+                    <div><label>State</label><input name="state" value="{{ client.state if client else '' }}"></div>
+                    <div><label>Pincode</label><input name="pincode" value="{{ client.pincode if client else '' }}"></div>
                     <div>
                         <label>Status</label>
                         <select name="status">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="active" {% if client and client.status == "active" %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if client and client.status == "inactive" %}selected{% endif %}>Inactive</option>
                         </select>
                     </div>
                 </div>
 
                 <label>Address</label>
-                <textarea name="address" rows="4"></textarea>
+                <textarea name="address" rows="4">{{ client.address if client else '' }}</textarea>
 
-                <button type="submit" class="save-btn">Save Client</button>
+                <button type="submit" class="save-btn">{{ "Update Client" if client else "Save Client" }}</button>
             </form>
         </section>
     </main>
