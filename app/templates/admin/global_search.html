@@ -1,0 +1,91 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Global Search</h1>
+                <p>Search clients, GSTIN, PAN, staff, compliance tasks and notifications</p>
+            </div>
+            <div class="profile">Shortcut: Ctrl/⌘ + K</div>
+        </header>
+
+        <section class="panel">
+            <form method="GET" class="global-search-form">
+                <input name="q" value="{{ q }}" placeholder="Search anything... client, GSTIN, PAN, task, staff" autofocus>
+                <button type="submit">Search</button>
+            </form>
+        </section>
+
+        {% if q %}
+        <section class="search-results-grid">
+            <div class="panel">
+                <h3>Clients</h3>
+                {% for client in clients %}
+                    <a class="search-result-item" href="{{ url_for('admin.view_client', client_id=client.id) }}">
+                        <strong>{{ client.business_name }}</strong>
+                        <span>{{ client.client_name }} • {{ client.gstin or "-" }} • {{ client.pan or "-" }}</span>
+                    </a>
+                {% else %}
+                    <p>No clients found.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h3>Compliance Tasks</h3>
+                {% for task in tasks %}
+                    <a class="search-result-item" href="{{ url_for('admin.edit_compliance_task', task_id=task.id) }}">
+                        <strong>{{ task.client.business_name }} — {{ task.form_name }}</strong>
+                        <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }} • {{ task.status }}</span>
+                    </a>
+                {% else %}
+                    <p>No compliance tasks found.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h3>Staff</h3>
+                {% for member in staff %}
+                    <a class="search-result-item" href="{{ url_for('admin.edit_staff', staff_id=member.id) }}">
+                        <strong>{{ member.name }}</strong>
+                        <span>{{ member.email }} • {{ member.mobile or "-" }} • {{ member.role }}</span>
+                    </a>
+                {% else %}
+                    <p>No staff found.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h3>Notifications</h3>
+                {% for item in notifications %}
+                    <div class="search-result-item">
+                        <strong>{{ item.title }}</strong>
+                        <span>{{ item.module or "System" }} • {{ item.created_at.strftime("%d-%m-%Y") }}</span>
+                    </div>
+                {% else %}
+                    <p>No notifications found.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% else %}
+        <section class="panel">
+            <h3>Start searching</h3>
+            <p>Try searching client name, GSTIN, PAN, mobile number, staff name, GST return name or notification title.</p>
+        </section>
+        {% endif %}
+    </main>
+</div>
+
+<script>
+document.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const input = document.querySelector('input[name="q"]');
+        if (input) input.focus();
+    }
+});
+</script>
+{% endblock %}

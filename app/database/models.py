@@ -19,6 +19,9 @@ class User(db.Model):
     gstin = db.Column(db.String(20), nullable=True)
     pan = db.Column(db.String(20), nullable=True)
 
+    reset_token = db.Column(db.String(120), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -205,3 +208,32 @@ class FirmSettings(db.Model):
     accent_color = db.Column(db.String(20), nullable=True, default="#d4af37")
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
+class ClientMessage(db.Model):
+    __tablename__ = "client_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False, index=True)
+
+    subject = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(80), nullable=False, default="General Query")
+    priority = db.Column(db.String(30), nullable=False, default="Medium")
+
+    message = db.Column(db.Text, nullable=False)
+
+    attachment_filename = db.Column(db.String(255), nullable=True)
+    attachment_stored_filename = db.Column(db.String(255), nullable=True)
+
+    admin_reply = db.Column(db.Text, nullable=True)
+    replied_by = db.Column(db.String(120), nullable=True)
+    replied_at = db.Column(db.DateTime, nullable=True)
+
+    status = db.Column(db.String(30), nullable=False, default="Open")
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    client = db.relationship("Client", backref="messages")

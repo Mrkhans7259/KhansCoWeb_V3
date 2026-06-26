@@ -16,19 +16,19 @@
         <section class="panel">
             <form method="POST" class="client-form">
                 <div class="grid-2">
-                    <div><label>Business / Trade Name</label><input name="business_name" value="{{ client.business_name if client else '' }}" required></div>
-                    <div><label>Client Name</label><input name="client_name" value="{{ client.client_name if client else '' }}" required></div>
-                    <div><label>Mobile</label><input name="mobile" value="{{ client.mobile if client else '' }}"></div>
-                    <div><label>Email</label><input type="email" name="email" value="{{ client.email if client else '' }}"></div>
-                    <div><label>GSTIN</label><input name="gstin" value="{{ client.gstin if client else '' }}"></div>
-                    <div><label>PAN</label><input name="pan" value="{{ client.pan if client else '' }}"></div>
+                    <div><label>Business / Trade Name</label><input name="business_name" data-validate="business" value="{{ client.business_name if client else '' }}" required></div>
+                    <div><label>Client Name</label><input name="client_name" data-validate="name" value="{{ client.client_name if client else '' }}" required></div>
+                    <div><label>Mobile</label><input name="mobile" data-validate="mobile" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Enter exactly 10 digits" value="{{ client.mobile if client else '' }}"></div>
+                    <div><label>Email</label><input type="email" name="email" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" title="Enter valid email" value="{{ client.email if client else '' }}"></div>
+                    <div><label>GSTIN</label><input name="gstin" data-validate="gstin" maxlength="15" style="text-transform:uppercase" pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}[A-Za-z0-9]{3}" maxlength="15" title="Enter valid GSTIN" value="{{ client.gstin if client else '' }}"></div>
+                    <div><label>PAN</label><input name="pan" data-validate="pan" maxlength="10" style="text-transform:uppercase" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}" maxlength="10" title="PAN format: ABCDE1234F" value="{{ client.pan if client else '' }}"></div>
                     <div><label>Constitution</label><input name="constitution" value="{{ client.constitution if client else '' }}"></div>
                     <div><label>Registration Type</label><input name="registration_type" value="{{ client.registration_type if client else '' }}"></div>
                     <div><label>Return Frequency</label><input name="return_frequency" value="{{ client.return_frequency if client else '' }}"></div>
                     <div><label>Assigned Staff</label><input name="assigned_staff" value="{{ client.assigned_staff if client else '' }}"></div>
                     <div><label>City</label><input name="city" value="{{ client.city if client else '' }}"></div>
                     <div><label>State</label><input name="state" value="{{ client.state if client else '' }}"></div>
-                    <div><label>Pincode</label><input name="pincode" value="{{ client.pincode if client else '' }}"></div>
+                    <div><label>Pincode</label><input name="pincode" data-validate="pincode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" inputmode="numeric" title="Enter exactly 6 digits" value="{{ client.pincode if client else '' }}"></div>
                     <div>
                         <label>Status</label>
                         <select name="status">

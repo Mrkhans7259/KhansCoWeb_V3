@@ -18,17 +18,17 @@
                 <div class="grid-2">
                     <div>
                         <label>Staff Name</label>
-                        <input name="name" value="{{ staff_member.name if staff_member else '' }}" required>
+                        <input name="name" data-validate="name" value="{{ staff_member.name if staff_member else '' }}" required>
                     </div>
 
                     <div>
                         <label>Email</label>
-                        <input type="email" name="email" value="{{ staff_member.email if staff_member else '' }}" required>
+                        <input type="email" name="email" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" title="Enter valid email" value="{{ staff_member.email if staff_member else '' }}" required>
                     </div>
 
                     <div>
                         <label>Mobile</label>
-                        <input name="mobile" value="{{ staff_member.mobile if staff_member else '' }}">
+                        <input name="mobile" data-validate="mobile" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Enter exactly 10 digits" value="{{ staff_member.mobile if staff_member else '' }}">
                     </div>
 
                     <div>

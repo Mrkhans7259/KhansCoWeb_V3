@@ -1,55 +1,108 @@
 {% extends "shared/base.html" %}
 
 {% block body %}
-<div class="app-layout">
-    <aside class="sidebar">
-        <div class="side-brand">
-            <div class="side-logo">K&C</div>
-            <div>
-                <h2>Client Portal</h2>
-                <p>Khans & Co</p>
-            </div>
+<div class="client-shell">
+    <header class="client-topbar">
+        <div>
+            <h1>Welcome, {{ user.name }}</h1>
+            <p>{{ user.business_name or "Client Portal" }}</p>
         </div>
-        <nav>
-            <a class="active" href="{{ url_for('client.dashboard') }}">Dashboard</a>
-            <a href="#">My Profile</a>
-            <a href="#">Upload Documents</a>
-            <a href="#">GST Status</a>
-            <a href="#">Income Tax</a>
-            <a href="#">Messages</a>
+        <div class="client-actions">
+            <a href="{{ url_for('client.profile') }}">My Profile</a>
+            <a href="{{ url_for('client.documents') }}">Upload Documents</a>
+            <a href="{{ url_for('client.messages') }}">Messages</a>
             <a href="{{ url_for('auth.logout') }}">Logout</a>
-        </nav>
-    </aside>
+        </div>
+    </header>
 
-    <main class="main">
-        <header class="topbar">
-            <div>
-                <h1>Client Dashboard</h1>
-                <p>Track compliance status and documents</p>
-            </div>
-            <div class="profile">Welcome, {{ session.get("user_name") }}</div>
-        </header>
+    {% if not client %}
+    <section class="client-alert">
+        <h3>Client record not linked</h3>
+        <p>Your portal account is active, but it is not linked with Client Master yet. Please contact Khans & Co.</p>
+    </section>
+    {% endif %}
 
-        <section class="metrics">
-            <div class="card"><span>GST Status</span><h2>Pending</h2><p>Current month</p></div>
-            <div class="card"><span>Documents</span><h2>0</h2><p>Uploaded files</p></div>
-            <div class="card"><span>Messages</span><h2>0</h2><p>Unread messages</p></div>
-            <div class="card"><span>Fees</span><h2>₹0</h2><p>Outstanding</p></div>
-        </section>
+    {% set pending_count = compliance_tasks|selectattr("status", "equalto", "pending")|list|length %}
+    {% set filed_count = compliance_tasks|selectattr("status", "equalto", "filed")|list|length %}
+    {% set overdue_count = compliance_tasks|selectattr("status", "equalto", "overdue")|list|length %}
 
-        <section class="panels">
-            <div class="panel large">
-                <h3>Upload Documents</h3>
-                <p>Upload GST, Income Tax, bank statements and notices here.</p>
-                <button class="primary-small">Upload File</button>
-            </div>
+    <section class="client-metrics">
+        <div class="client-card">
+            <span>Total Compliance</span>
+            <h2>{{ compliance_tasks|length }}</h2>
+            <p>All recent tasks</p>
+        </div>
 
-            <div class="panel">
-                <h3>Contact Auditor</h3>
-                <p>Send a message to Khans & Co team.</p>
-                <button class="primary-small">Send Message</button>
-            </div>
-        </section>
-    </main>
+        <div class="client-card warning-soft">
+            <span>Pending</span>
+            <h2>{{ pending_count }}</h2>
+            <p>Action required</p>
+        </div>
+
+        <div class="client-card success-soft">
+            <span>Filed</span>
+            <h2>{{ filed_count }}</h2>
+            <p>Completed returns</p>
+        </div>
+
+        <div class="client-card danger-soft">
+            <span>Overdue</span>
+            <h2>{{ overdue_count }}</h2>
+            <p>Past due date</p>
+        </div>
+    </section>
+
+    <section class="client-grid">
+        <div class="client-panel">
+            <h3>My Compliance Status</h3>
+
+            {% for task in compliance_tasks %}
+                <div class="client-list-item">
+                    <strong>{{ task.form_name }} — {{ task.status|replace("_", " ")|title }}</strong>
+                    <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }}</span>
+                    <small>Due: {{ task.due_date.strftime("%d-%m-%Y") if task.due_date else "-" }}</small>
+                </div>
+            {% else %}
+                <p>No compliance records found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="client-panel">
+            <h3>Upcoming Due Dates</h3>
+
+            {% set upcoming = compliance_tasks|selectattr("due_date")|list %}
+            {% for task in upcoming %}
+                {% if task.status != "filed" %}
+                <div class="client-list-item">
+                    <strong>{{ task.form_name }}</strong>
+                    <span>{{ task.compliance_type }} • {{ task.period_month or "-" }} {{ task.period_year or "" }}</span>
+                    <small>Due: {{ task.due_date.strftime("%d-%m-%Y") }}</small>
+                </div>
+                {% endif %}
+            {% else %}
+                <p>No upcoming due dates.</p>
+            {% endfor %}
+        </div>
+
+        <div class="client-panel">
+            <h3>Recent Documents</h3>
+
+            {% for doc in documents %}
+                <div class="client-list-item">
+                    <strong>{{ doc.title }}</strong>
+                    <span>{{ doc.category }} • {{ doc.created_at.strftime("%d-%m-%Y") }}</span>
+                    <small>{{ doc.original_filename }}</small>
+                </div>
+            {% else %}
+                <p>No documents found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="client-panel">
+            <h3>Need Help?</h3>
+            <p>Contact Khans & Co for compliance support, document upload help, or filing queries.</p>
+            <a class="client-help-btn" target="_blank" href="https://wa.me/91{{ firm_settings.mobile|replace(' ', '')|replace('-', '') if firm_settings and firm_settings.mobile else '' }}">WhatsApp Support</a>
+        </div>
+    </section>
 </div>
 {% endblock %}

@@ -7,36 +7,135 @@
     <main class="main">
         <header class="topbar">
             <div>
-                <h1>Admin Dashboard</h1>
-                <p>Enterprise overview for clients, compliance and finance</p>
+                <h1>Enterprise Dashboard</h1>
+                <p>Live overview of clients, compliance, reminders and office activity</p>
             </div>
-            <div class="profile">Welcome, {{ session.get("user_name") }}</div>
+            <div class="profile">Unread Alerts: {{ unread_notifications }}</div>
         </header>
 
         <section class="metrics">
-            <div class="card"><span>Total Clients</span><h2>{{ total_clients }}</h2><p>Registered clients</p></div>
-            <div class="card success"><span>Active Clients</span><h2>{{ active_clients }}</h2><p>Currently active</p></div>
-            <div class="card warning"><span>GST Pending</span><h2>0</h2><p>Returns pending</p></div>
-            <div class="card danger"><span>Inactive Clients</span><h2>{{ inactive_clients }}</h2><p>Inactive clients</p></div>
+            <div class="card">
+                <span>Total Clients</span>
+                <h2>{{ total_clients }}</h2>
+                <p>{{ active_clients }} active clients</p>
+            </div>
+
+            <div class="card">
+                <span>Staff Members</span>
+                <h2>{{ total_staff }}</h2>
+                <p>Office users</p>
+            </div>
+
+            <div class="card warning">
+                <span>Pending Compliance</span>
+                <h2>{{ pending_tasks }}</h2>
+                <p>Yet to be filed</p>
+            </div>
+
+            <div class="card danger">
+                <span>Overdue</span>
+                <h2>{{ overdue_tasks }}</h2>
+                <p>Past due date</p>
+            </div>
         </section>
 
         <section class="panels">
             <div class="panel large">
-                <h3>Compliance Summary</h3>
-                <p>Monthly filing status overview</p>
-                <div class="bar-row"><span>GSTR-1</span><div><b style="width:70%"></b></div><strong>70%</strong></div>
-                <div class="bar-row"><span>GSTR-3B</span><div><b style="width:45%"></b></div><strong>45%</strong></div>
-                <div class="bar-row"><span>ITR</span><div><b style="width:30%"></b></div><strong>30%</strong></div>
+                <h3>Compliance Visual Summary</h3>
+                <p>Status-wise compliance distribution</p>
+
+                {% set total = total_tasks if total_tasks > 0 else 1 %}
+                {% set filed_percent = (filed_tasks / total * 100) %}
+                {% set pending_percent = (pending_tasks / total * 100) %}
+                {% set overdue_percent = (overdue_tasks / total * 100) %}
+
+                <div class="visual-bar-row">
+                    <div class="visual-label">
+                        <strong>Filed</strong>
+                        <span>{{ filed_tasks }}</span>
+                    </div>
+                    <div class="visual-track">
+                        <div class="visual-fill success-fill" style="width: {{ filed_percent }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="visual-bar-row">
+                    <div class="visual-label">
+                        <strong>Pending</strong>
+                        <span>{{ pending_tasks }}</span>
+                    </div>
+                    <div class="visual-track">
+                        <div class="visual-fill warning-fill" style="width: {{ pending_percent }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="visual-bar-row">
+                    <div class="visual-label">
+                        <strong>Overdue</strong>
+                        <span>{{ overdue_tasks }}</span>
+                    </div>
+                    <div class="visual-track">
+                        <div class="visual-fill danger-fill" style="width: {{ overdue_percent }}%;"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="panel">
+                <h3>Reminder Snapshot</h3>
+                <div class="snapshot-grid">
+                    <div class="snapshot-card danger-soft">
+                        <span>Overdue</span>
+                        <strong>{{ overdue_tasks }}</strong>
+                    </div>
+                    <div class="snapshot-card warning-soft">
+                        <span>Due Today</span>
+                        <strong>{{ due_today_count }}</strong>
+                    </div>
+                    <div class="snapshot-card info-soft">
+                        <span>Upcoming</span>
+                        <strong>{{ upcoming_count }}</strong>
+                    </div>
+                    <div class="snapshot-card success-soft">
+                        <span>Filed</span>
+                        <strong>{{ filed_tasks }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel large">
                 <h3>Quick Actions</h3>
                 <div class="quick">
                     <a class="quick-link" href="{{ url_for('admin.add_client') }}">Add Client</a>
-                    <button>Upload Document</button>
-                    <button>GST Reminder</button>
-                    <button>Generate Report</button>
+                    <a class="quick-link" href="{{ url_for('admin.compliance_dashboard') }}">Compliance Center</a>
+                    <a class="quick-link" href="{{ url_for('admin.reminders') }}">Reminder Engine</a>
+                    <a class="quick-link" href="{{ url_for('admin.whatsapp_queue') }}">WhatsApp Queue</a>
+                    <a class="quick-link" href="{{ url_for('admin.email_queue') }}">Email Queue</a>
+                    <a class="quick-link" href="{{ url_for('admin.gst_json_import') }}">GST JSON Import</a>
                 </div>
+            </div>
+
+            <div class="panel">
+                <h3>Recent Notifications</h3>
+                {% for item in recent_notifications %}
+                    <div class="mini-list-item">
+                        <strong>{{ item.title }}</strong>
+                        <span>{{ item.module or "System" }} • {{ item.created_at.strftime("%d-%m-%Y %I:%M %p") }}</span>
+                    </div>
+                {% else %}
+                    <p>No notifications yet.</p>
+                {% endfor %}
+            </div>
+
+            <div class="panel large">
+                <h3>Recent Activity</h3>
+                {% for log in recent_activity %}
+                    <div class="timeline-item">
+                        <strong>{{ log.module }} — {{ log.action }}</strong>
+                        <span>{{ log.user_name or "System" }} • {{ log.created_at.strftime("%d-%m-%Y %I:%M %p") }}</span>
+                    </div>
+                {% else %}
+                    <p>No activity yet.</p>
+                {% endfor %}
             </div>
         </section>
     </main>

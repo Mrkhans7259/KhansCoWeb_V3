@@ -5,8 +5,23 @@
     <title>{{ title or "Khans & Co Compliance Manager V3" }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KCMS">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
 </head>
 <body>
     {% block body %}{% endblock %}
+<script src="{{ url_for('static', filename='js/validators.js') }}"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/sw.js");
+    });
+}
+</script>
 </body>
 </html>

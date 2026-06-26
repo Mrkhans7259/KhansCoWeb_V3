@@ -1,0 +1,15 @@
+{
+  "return_type": "GSTR-1",
+  "gstin": "29ABCDE1234F1Z5",
+  "legal_name": "ABC TRADERS",
+  "trade_name": "ABC Traders",
+  "financial_year": "2025-26",
+  "period": "June",
+  "b2b": [
+    {"invoice_no": "A001", "taxable_value": 100000, "igst": 0, "cgst": 9000, "sgst": 9000},
+    {"invoice_no": "A002", "taxable_value": 50000, "igst": 9000, "cgst": 0, "sgst": 0}
+  ],
+  "b2c": [
+    {"taxable_value": 25000, "igst": 0, "cgst": 2250, "sgst": 2250}
+  ]
+}

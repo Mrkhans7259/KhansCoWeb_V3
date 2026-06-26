@@ -5,6 +5,13 @@ from app.database.models import User
 from app.utils.route_guards import require_client_management
 
 
+def get_next_client_code():
+    last_client = Client.query.order_by(Client.id.desc()).first()
+    if not last_client:
+        return "C001"
+    return f"C{last_client.id + 1:03d}"
+
+
 def admin_required():
     return session.get("user_role") == "admin"
 
@@ -40,9 +47,31 @@ def approve_client(user_id):
         return redirect(url_for("admin.client_approvals"))
 
     user.status = "active"
+
+    existing_client = None
+
+    if user.gstin:
+        existing_client = Client.query.filter_by(gstin=user.gstin).first()
+
+    if not existing_client and user.email:
+        existing_client = Client.query.filter_by(email=user.email).first()
+
+    if not existing_client:
+        new_client = Client(
+            client_code=get_next_client_code(),
+            business_name=user.business_name or user.name,
+            client_name=user.name,
+            mobile=user.mobile,
+            email=user.email,
+            gstin=user.gstin,
+            pan=user.pan,
+            status="active"
+        )
+        db.session.add(new_client)
+
     db.session.commit()
 
-    flash("Client account approved successfully.", "success")
+    flash("Client account approved and linked with Client Master successfully.", "success")
     return redirect(url_for("admin.client_approvals"))
 
 

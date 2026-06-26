@@ -1,0 +1,85 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="client-shell">
+    <header class="client-topbar">
+        <div>
+            <h1>Messages</h1>
+            <p>Send queries and view replies from Khans & Co</p>
+        </div>
+        <div class="client-actions">
+            <a href="{{ url_for('client.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('client.documents') }}">Upload Documents</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
+
+    {% with messages_flash = get_flashed_messages(with_categories=true) %}
+        {% if messages_flash %}
+            <div class="flash-area">
+                {% for category, message in messages_flash %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <section class="client-grid">
+        <div class="client-panel">
+            <h3>New Message</h3>
+
+            <form method="POST" class="client-form">
+                <label>Category</label>
+                <select name="category">
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Priority</label>
+                <select name="priority">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+
+                <label>Subject</label>
+                <input name="subject" required placeholder="Example: GSTR-3B Filing">
+
+                <label>Message</label>
+                <textarea name="message" rows="6" required placeholder="Type your query here..."></textarea>
+
+                <button type="submit" class="save-btn">Send Message</button>
+            </form>
+        </div>
+
+        <div class="client-panel">
+            <h3>My Message History</h3>
+
+            {% for msg in messages %}
+                <div class="client-message-card">
+                    <div class="client-message-head">
+                        <strong>{{ msg.subject }}</strong>
+                        <span class="badge {{ 'active' if msg.status == 'Completed' else 'pending' }}">{{ msg.status }}</span>
+                    </div>
+
+                    <small>{{ msg.category }} • {{ msg.priority }} • {{ msg.created_at.strftime("%d-%m-%Y %I:%M %p") if msg.created_at else "-" }}</small>
+
+                    <p>{{ msg.message }}</p>
+
+                    {% if msg.admin_reply %}
+                        <div class="reply-box">
+                            <strong>Reply from Khans & Co</strong>
+                            <p>{{ msg.admin_reply }}</p>
+                            <small>{{ msg.replied_by or "Admin" }} • {{ msg.replied_at.strftime("%d-%m-%Y %I:%M %p") if msg.replied_at else "" }}</small>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>No messages yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

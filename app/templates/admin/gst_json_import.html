@@ -1,0 +1,119 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>GST JSON Import</h1>
+                <p>Upload GST JSON, parse summary, and link it to the matching client document vault</p>
+            </div>
+            <div class="profile">Client Linking Enabled</div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <h3>Upload GST JSON</h3>
+            <p>The system will match the JSON GSTIN with Client Master GSTIN and save the file in Document Vault.</p>
+
+            <form method="POST" enctype="multipart/form-data" class="client-form">
+                <label>Select GST JSON File</label>
+                <input type="file" name="gst_json" accept=".json" required>
+                <button type="submit" class="save-btn">Upload, Parse & Link</button>
+            </form>
+        </section>
+
+        {% if parsed_data %}
+        <section class="metrics">
+            <div class="card">
+                <span>Return Type</span>
+                <h2>{{ parsed_data.return_type }}</h2>
+                <p>{{ parsed_data.period }} {{ parsed_data.financial_year }}</p>
+            </div>
+
+            <div class="card success">
+                <span>GSTIN</span>
+                <h2>{{ parsed_data.gstin }}</h2>
+                <p>{{ parsed_data.trade_name }}</p>
+            </div>
+
+            <div class="card warning">
+                <span>Invoices</span>
+                <h2>{{ parsed_data.invoice_count }}</h2>
+                <p>Detected invoice records</p>
+            </div>
+
+            <div class="card">
+                <span>Taxable Value</span>
+                <h2>₹{{ "%.2f"|format(parsed_data.taxable_value) }}</h2>
+                <p>Total taxable value</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Client Match Status</h3>
+
+            {% if matched_client %}
+                <div class="next-due-box">
+                    <span>Matched Client</span>
+                    <strong>{{ matched_client.business_name }}</strong>
+                    <p>{{ matched_client.client_code }} • {{ matched_client.gstin }}</p>
+
+                    {% if document %}
+                        <a class="inline-action" href="{{ url_for('admin.client_documents', client_id=matched_client.id) }}">
+                            Open Client Documents
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="next-due-box">
+                    <span>No Client Matched</span>
+                    <strong>GSTIN: {{ parsed_data.gstin }}</strong>
+                    <p>Add this GSTIN in Client Master, then import again.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="panel">
+            <h3>GST Tax Summary</h3>
+            <div class="detail-grid">
+                <div><span>Legal Name</span><strong>{{ parsed_data.legal_name }}</strong></div>
+                <div><span>Trade Name</span><strong>{{ parsed_data.trade_name }}</strong></div>
+                <div><span>IGST</span><strong>₹{{ "%.2f"|format(parsed_data.igst) }}</strong></div>
+                <div><span>CGST</span><strong>₹{{ "%.2f"|format(parsed_data.cgst) }}</strong></div>
+                <div><span>SGST</span><strong>₹{{ "%.2f"|format(parsed_data.sgst) }}</strong></div>
+                <div><span>CESS</span><strong>₹{{ "%.2f"|format(parsed_data.cess) }}</strong></div>
+                <div><span>Status</span><strong>{{ parsed_data.status }}</strong></div>
+                <div><span>ARN</span><strong>{{ parsed_data.arn }}</strong></div>
+                <div><span>Filing Date</span><strong>{{ parsed_data.filing_date }}</strong></div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Detected JSON Keys</h3>
+            <div class="workspace-badges">
+                {% for key in parsed_data.raw_keys %}
+                    <span class="badge doc-badge">{{ key }}</span>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Raw JSON Preview</h3>
+            <pre class="message-preview">{{ raw_preview }}</pre>
+        </section>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

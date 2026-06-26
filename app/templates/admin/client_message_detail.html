@@ -1,0 +1,54 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{{ msg.subject }}</h1>
+                <p>{{ msg.client.business_name }} • {{ msg.category }} • {{ msg.priority }}</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.client_messages') }}">Back</a>
+        </header>
+
+        {% with messages_flash = get_flashed_messages(with_categories=true) %}
+            {% if messages_flash %}
+                <div class="flash-area">
+                    {% for category, message in messages_flash %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <h3>Client Message</h3>
+            <div class="next-due-box">
+                <span>From {{ msg.client.business_name }}</span>
+                <strong>{{ msg.subject }}</strong>
+                <p>{{ msg.message }}</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>Reply / Update Status</h3>
+
+            <form method="POST" class="client-form">
+                <label>Status</label>
+                <select name="status">
+                    {% for item in ["Open", "In Progress", "Completed", "Closed"] %}
+                        <option value="{{ item }}" {% if msg.status == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Admin Reply</label>
+                <textarea name="admin_reply" rows="7" placeholder="Type reply here...">{{ msg.admin_reply or "" }}</textarea>
+
+                <button type="submit" class="save-btn">Save Reply</button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

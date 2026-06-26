@@ -1,0 +1,92 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Email Reminder Queue</h1>
+                <p>Review prepared email reminders before sending</p>
+            </div>
+            <div class="profile">Queue: {{ queue|length }}</div>
+        </header>
+
+        <section class="panel">
+            <h3>Smart Queue Filters</h3>
+            <form method="GET" class="smart-filter">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search client, email, form">
+
+                <select name="reminder_type">
+                    <option value="">All Reminder Types</option>
+                    <option value="danger" {% if selected_reminder_type == "danger" %}selected{% endif %}>Overdue</option>
+                    <option value="warning" {% if selected_reminder_type == "warning" %}selected{% endif %}>Due Today</option>
+                    <option value="info" {% if selected_reminder_type == "info" %}selected{% endif %}>Upcoming</option>
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.email_queue') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h3>Prepared Email Messages</h3>
+            <p>No emails are sent from this page yet. This is a review queue.</p>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Form</th>
+                            <th>Period</th>
+                            <th>Due</th>
+                            <th>Reminder</th>
+                            <th>Subject</th>
+                            <th>Preview</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in queue %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.business_name }}</strong><br>
+                                <span>{{ item.client_name }}</span>
+                            </td>
+                            <td>{{ item.email or "No email" }}</td>
+                            <td>{{ item.form_name }}</td>
+                            <td>{{ item.period or "-" }}</td>
+                            <td>{{ item.due_date }}</td>
+                            <td><span class="badge {{ item.priority }}">{{ item.reminder_label }}</span></td>
+                            <td>{{ item.subject }}</td>
+                            <td>
+                                <details>
+                                    <summary>View Email</summary>
+                                    <pre class="message-preview" id="email-{{ loop.index }}">{{ item.body }}</pre>
+                                    <button type="button" class="copy-btn" onclick="copyEmail('email-{{ loop.index }}')">Copy Body</button>
+                                </details>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="empty">No email reminders in queue.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+function copyEmail(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Email body copied.");
+    });
+}
+</script>
+{% endblock %}

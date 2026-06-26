@@ -22,12 +22,12 @@
 
             <form method="POST" class="form">
                 <div class="grid-2">
-                    <div><label>Business Name</label><input name="business_name" required></div>
-                    <div><label>Client Name</label><input name="name" required></div>
-                    <div><label>Mobile</label><input name="mobile" required></div>
+                    <div><label>Business Name</label><input name="business_name" data-validate="business" required></div>
+                    <div><label>Client Name</label><input name="name" data-validate="name" required></div>
+                    <div><label>Mobile</label><input name="mobile" data-validate="mobile" maxlength="10" inputmode="numeric" required></div>
                     <div><label>Email</label><input type="email" name="email" required></div>
-                    <div><label>GSTIN</label><input name="gstin"></div>
-                    <div><label>PAN</label><input name="pan"></div>
+                    <div><label>GSTIN</label><input name="gstin" data-validate="gstin" maxlength="15" style="text-transform:uppercase"></div>
+                    <div><label>PAN</label><input name="pan" data-validate="pan" maxlength="10" style="text-transform:uppercase"></div>
                     <div><label>Password</label><input type="password" name="password" required></div>
                     <div><label>Confirm Password</label><input type="password" name="confirm_password" required></div>
                 </div>

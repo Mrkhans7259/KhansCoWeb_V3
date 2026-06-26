@@ -18,3 +18,11 @@ from app.admin import settings_routes
 from app.admin import reminder_routes
 
 from app.admin import whatsapp_routes
+
+from app.admin import email_routes
+
+from app.admin import gst_json_routes
+
+from app.admin import search_routes
+
+from app.admin import message_routes

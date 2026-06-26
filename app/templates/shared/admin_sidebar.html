@@ -8,36 +8,46 @@
     </div>
 
     <nav>
-        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a class="{% if request.endpoint == 'admin.global_search' %}active{% endif %}" href="{{ url_for('admin.global_search') }}">Global Search</a>
+        <a class="{% if request.endpoint in ['admin.client_messages','admin.client_message_detail'] %}active{% endif %}" href="{{ url_for('admin.client_messages') }}">Client Messages</a>
 
         {% if session.get("user_role") in ["super_admin", "admin", "partner", "manager"] %}
-            <a href="{{ url_for('admin.clients') }}">Client Master</a>
-            <a href="{{ url_for('admin.client_approvals') }}">Client Approvals</a>
+            <a class="{% if request.endpoint in ['admin.clients','admin.add_client','admin.view_client','admin.edit_client'] %}active{% endif %}" href="{{ url_for('admin.clients') }}">Client Master</a>
+            <a class="{% if request.endpoint == 'admin.client_approvals' %}active{% endif %}" href="{{ url_for('admin.client_approvals') }}">Client Approvals</a>
         {% endif %}
 
         {% if session.get("user_role") in ["super_admin", "admin", "partner"] %}
-            <a href="{{ url_for('admin.staff') }}">Staff Master</a>
+            <a class="{% if request.endpoint in ['admin.staff','admin.add_staff','admin.edit_staff'] %}active{% endif %}" href="{{ url_for('admin.staff') }}">Staff Master</a>
         {% endif %}
 
         {% if session.get("user_role") in ["super_admin", "admin", "partner", "manager", "staff"] %}
-            <a href="{{ url_for('admin.compliance_dashboard') }}">Compliance</a>
-            <a href="{{ url_for('admin.reminders') }}">Reminders</a>
-            <a href="{{ url_for('admin.whatsapp_queue') }}">WhatsApp Queue</a>
+            <a class="{% if request.endpoint in ['admin.compliance_dashboard','admin.add_compliance_task','admin.edit_compliance_task','admin.generate_gst_tasks'] %}active{% endif %}" href="{{ url_for('admin.compliance_dashboard') }}">Compliance</a>
+            <a class="{% if request.endpoint == 'admin.gst_json_import' %}active{% endif %}" href="{{ url_for('admin.gst_json_import') }}">GST JSON Import</a>
+            <a class="{% if request.endpoint == 'admin.reminders' %}active{% endif %}" href="{{ url_for('admin.reminders') }}">Reminders</a>
+            <a class="{% if request.endpoint == 'admin.whatsapp_queue' %}active{% endif %}" href="{{ url_for('admin.whatsapp_queue') }}">WhatsApp Queue</a>
+            <a class="{% if request.endpoint == 'admin.email_queue' %}active{% endif %}" href="{{ url_for('admin.email_queue') }}">Email Queue</a>
         {% endif %}
 
-        <a href="#">Documents</a>
+        <a class="{% if request.endpoint in ['admin.all_documents','admin.client_documents'] %}active{% endif %}" href="{{ url_for('admin.all_documents') }}">Documents</a>
+
         <a href="#">Finance</a>
         <a href="#">Reports</a>
         <a href="#">Analytics</a>
 
         {% if session.get("user_role") in ["super_admin", "admin", "partner"] %}
-            <a href="{{ url_for('admin.activity_log') }}">Activity Log</a>
+            <a class="{% if request.endpoint == 'admin.activity_log' %}active{% endif %}" href="{{ url_for('admin.activity_log') }}">Activity Log</a>
         {% endif %}
 
-        <a href="{{ url_for('admin.notifications') }}">Notifications</a>
+        <a class="sidebar-notification-link {% if request.endpoint == 'admin.notifications' %}active{% endif %}" href="{{ url_for('admin.notifications') }}">
+            <span>Notifications</span>
+            {% if unread_notifications_count and unread_notifications_count > 0 %}
+                <strong class="notification-badge">{{ unread_notifications_count }}</strong>
+            {% endif %}
+        </a>
 
         {% if session.get("user_role") in ["super_admin", "admin", "partner"] %}
-            <a href="{{ url_for('admin.firm_settings') }}">Settings</a>
+            <a class="{% if request.endpoint == 'admin.firm_settings' %}active{% endif %}" href="{{ url_for('admin.firm_settings') }}">Settings</a>
         {% endif %}
 
         <a href="{{ url_for('auth.logout') }}">Logout</a>

@@ -8,7 +8,7 @@
         <header class="topbar">
             <div>
                 <h1>Notification Center</h1>
-                <p>Important alerts, reminders and system updates</p>
+                <p>Client signups, document uploads, compliance alerts and system updates</p>
             </div>
 
             <div class="profile-actions">
@@ -20,8 +20,22 @@
         </header>
 
         <section class="panel">
+            <h3>Notification Filters</h3>
+            <form method="GET" class="smart-filter">
+                <select name="status">
+                    <option value="" {% if selected_status == "" %}selected{% endif %}>All Notifications</option>
+                    <option value="unread" {% if selected_status == "unread" %}selected{% endif %}>Unread Only</option>
+                    <option value="read" {% if selected_status == "read" %}selected{% endif %}>Read Only</option>
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.notifications') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
             <h3>Recent Notifications</h3>
-            <p>Showing latest 200 notifications.</p>
+            <p>Showing latest 300 notifications.</p>
 
             <div class="notification-list">
                 {% for item in notifications %}
@@ -44,17 +58,31 @@
 
                             <div class="notification-meta">
                                 <span>{{ item.module or "System" }}</span>
+
                                 {% if item.record_type %}
                                     <span>{{ item.record_type }} #{{ item.record_id or "-" }}</span>
                                 {% endif %}
+
                                 {% if not item.is_read %}
                                     <span class="unread-pill">Unread</span>
+                                {% else %}
+                                    <span>Read</span>
                                 {% endif %}
                             </div>
                         </div>
+
+                        <div class="notification-actions">
+                            {% if not item.is_read %}
+                                <form method="POST" action="{{ url_for('admin.mark_notification_read', notification_id=item.id) }}">
+                                    <button type="submit" class="mark-read-btn">Mark Read</button>
+                                </form>
+                            {% else %}
+                                <span class="badge active">Done</span>
+                            {% endif %}
+                        </div>
                     </div>
                 {% else %}
-                    <div class="empty">No notifications yet.</div>
+                    <div class="empty">No notifications found.</div>
                 {% endfor %}
             </div>
         </section>

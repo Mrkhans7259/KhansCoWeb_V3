@@ -1,0 +1,16 @@
+{
+  "return_type": "GSTR-3B",
+  "gstin": "29ABCDE1234F1Z5",
+  "legal_name": "ABC TRADERS",
+  "trade_name": "ABC Traders",
+  "financial_year": "2025-26",
+  "period": "June",
+  "outward_taxable_value": 175000,
+  "igst": 9000,
+  "cgst": 11250,
+  "sgst": 11250,
+  "cess": 0,
+  "status": "filed",
+  "arn": "AA2906251234567",
+  "filing_date": "2026-06-20"
+}

@@ -1,0 +1,59 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="client-shell">
+    <header class="client-topbar">
+        <div>
+            <h1>My Profile</h1>
+            <p>Update your contact and business details</p>
+        </div>
+        <div class="client-actions">
+            <a href="{{ url_for('client.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-area">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <section class="client-panel">
+        <form method="POST" class="client-form">
+            <div class="grid-2">
+                <div>
+                    <label>Name</label>
+                    <input name="name" data-validate="name" value="{{ user.name or '' }}" required>
+                </div>
+
+                <div>
+                    <label>Mobile</label>
+                    <input name="mobile" data-validate="mobile" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Enter exactly 10 digits" value="{{ user.mobile or '' }}">
+                </div>
+
+                <div>
+                    <label>Business Name</label>
+                    <input name="business_name" data-validate="business" value="{{ user.business_name or '' }}">
+                </div>
+
+                <div>
+                    <label>GSTIN</label>
+                    <input name="gstin" data-validate="gstin" maxlength="15" style="text-transform:uppercase" pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}[A-Za-z0-9]{3}" maxlength="15" title="Enter valid GSTIN" value="{{ user.gstin or '' }}">
+                </div>
+
+                <div>
+                    <label>PAN</label>
+                    <input name="pan" data-validate="pan" maxlength="10" style="text-transform:uppercase" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}" maxlength="10" title="PAN format: ABCDE1234F" value="{{ user.pan or '' }}">
+                </div>
+            </div>
+
+            <button type="submit" class="save-btn">Save Profile</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

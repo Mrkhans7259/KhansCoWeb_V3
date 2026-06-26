@@ -1,0 +1,71 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Client Messages</h1>
+                <p>Inbox for client queries and communication</p>
+            </div>
+            <div class="profile">Messages: {{ messages|length }}</div>
+        </header>
+
+        <section class="panel">
+            <h3>Filters</h3>
+            <form method="GET" class="smart-filter">
+                <input name="search" value="{{ search }}" placeholder="Search subject/message">
+
+                <select name="status">
+                    <option value="">All Status</option>
+                    {% for item in ["Open", "In Progress", "Completed", "Closed"] %}
+                        <option value="{{ item }}" {% if selected_status == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.client_messages') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h3>Message Inbox</h3>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Subject</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Open</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for msg in messages %}
+                        <tr>
+                            <td><strong>{{ msg.client.business_name }}</strong></td>
+                            <td>{{ msg.subject }}</td>
+                            <td>{{ msg.category }}</td>
+                            <td>{{ msg.priority }}</td>
+                            <td><span class="badge {{ 'active' if msg.status == 'Completed' else 'pending' }}">{{ msg.status }}</span></td>
+                            <td>{{ msg.created_at.strftime("%d-%m-%Y %I:%M %p") if msg.created_at else "-" }}</td>
+                            <td><a class="table-link" href="{{ url_for('admin.client_message_detail', message_id=msg.id) }}">View / Reply</a></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="empty">No client messages found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

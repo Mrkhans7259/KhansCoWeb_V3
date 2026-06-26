@@ -3,6 +3,8 @@ from app.admin import admin_bp
 from app.database.db import db
 from app.database.models import Client, ClientDocument, ComplianceTask
 from app.services.audit_service import log_action
+from app.utils.duplicate_checks import check_client_duplicates
+from app.utils.validators import clean, upper, validate_mobile, validate_email, validate_gstin, validate_pan, validate_pincode, collect_errors
 from app.utils.route_guards import require_client_management
 
 
@@ -47,7 +49,21 @@ def add_client():
 
     if request.method == "POST":
         client = Client(client_code=get_next_client_code())
-        save_client_from_form(client)
+        try:
+            save_client_from_form(client)
+            duplicate_errors = check_client_duplicates(
+                email=client.email,
+                mobile=client.mobile,
+                pan=client.pan,
+                gstin=client.gstin
+            )
+            if duplicate_errors:
+                raise ValueError("\n".join(duplicate_errors))
+        except ValueError as error:
+            for msg in str(error).split("\n"):
+                flash(msg, "error")
+            return render_template("admin/client_form.html", client=None)
+
         db.session.add(client)
         db.session.flush()
 
@@ -123,7 +139,20 @@ def edit_client(client_id):
     client = Client.query.get_or_404(client_id)
 
     if request.method == "POST":
-        save_client_from_form(client)
+        try:
+            save_client_from_form(client)
+            duplicate_errors = check_client_duplicates(
+                email=client.email,
+                mobile=client.mobile,
+                pan=client.pan,
+                gstin=client.gstin
+            )
+            if duplicate_errors:
+                raise ValueError("\n".join(duplicate_errors))
+        except ValueError as error:
+            for msg in str(error).split("\n"):
+                flash(msg, "error")
+            return render_template("admin/client_form.html", client=client)
 
         log_action(
             action="Updated",
@@ -154,18 +183,37 @@ def delete_client(client_id):
 
 
 def save_client_from_form(client):
-    client.business_name = request.form.get("business_name", "").strip()
-    client.client_name = request.form.get("client_name", "").strip()
-    client.mobile = request.form.get("mobile", "").strip()
-    client.email = request.form.get("email", "").strip()
-    client.gstin = request.form.get("gstin", "").strip().upper()
-    client.pan = request.form.get("pan", "").strip().upper()
-    client.constitution = request.form.get("constitution", "").strip()
-    client.registration_type = request.form.get("registration_type", "").strip()
-    client.return_frequency = request.form.get("return_frequency", "").strip()
-    client.address = request.form.get("address", "").strip()
-    client.city = request.form.get("city", "").strip()
-    client.state = request.form.get("state", "").strip()
-    client.pincode = request.form.get("pincode", "").strip()
+    business_name = clean(request.form.get("business_name"))
+    client_name = clean(request.form.get("client_name"))
+    mobile = clean(request.form.get("mobile"))
+    email = clean(request.form.get("email")).lower()
+    gstin = upper(request.form.get("gstin"))
+    pan = upper(request.form.get("pan"))
+    pincode = clean(request.form.get("pincode"))
+
+    errors = collect_errors(
+        validate_mobile(mobile),
+        validate_email(email),
+        validate_gstin(gstin),
+        validate_pan(pan),
+        validate_pincode(pincode)
+    )
+
+    if errors:
+        raise ValueError("\n".join(errors))
+
+    client.business_name = business_name
+    client.client_name = client_name
+    client.mobile = mobile
+    client.email = email
+    client.gstin = gstin
+    client.pan = pan
+    client.constitution = clean(request.form.get("constitution"))
+    client.registration_type = clean(request.form.get("registration_type"))
+    client.return_frequency = clean(request.form.get("return_frequency"))
+    client.address = clean(request.form.get("address"))
+    client.city = clean(request.form.get("city"))
+    client.state = clean(request.form.get("state"))
+    client.pincode = pincode
     client.status = request.form.get("status", "active")
-    client.assigned_staff = request.form.get("assigned_staff", "").strip()
+    client.assigned_staff = clean(request.form.get("assigned_staff"))

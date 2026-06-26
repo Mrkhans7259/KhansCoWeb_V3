@@ -1,0 +1,91 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Document Center</h1>
+                <p>All client documents across GST, Income Tax, TDS, ROC, Bank and other categories</p>
+            </div>
+            <div class="profile">Total: {{ documents|length }}</div>
+        </header>
+
+        <section class="metrics">
+            <div class="card"><span>Total Documents</span><h2>{{ documents|length }}</h2><p>Filtered files</p></div>
+            <div class="card success"><span>GST Documents</span><h2>{{ documents|selectattr("category", "in", ["GST","GSTR-1","GSTR-3B","GSTR-2B"])|list|length }}</h2><p>GST related</p></div>
+            <div class="card warning"><span>Bank Statements</span><h2>{{ documents|selectattr("category", "equalto", "Bank Statements")|list|length }}</h2><p>Bank files</p></div>
+            <div class="card"><span>Income Tax</span><h2>{{ documents|selectattr("category", "equalto", "Income Tax")|list|length }}</h2><p>IT files</p></div>
+        </section>
+
+        <section class="panel">
+            <h3>Search Documents</h3>
+            <form method="GET" class="smart-filter">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search client, GSTIN, title, filename">
+
+                <select name="category">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.all_documents') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h3>All Documents</h3>
+
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Category</th>
+                            <th>Title</th>
+                            <th>File</th>
+                            <th>Size</th>
+                            <th>Uploaded By</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr>
+                            <td>
+                                <a class="table-link" href="{{ url_for('admin.view_client', client_id=doc.client.id) }}">
+                                    {{ doc.client.business_name }}
+                                </a>
+                            </td>
+                            <td><span class="badge doc-badge">{{ doc.category }}</span></td>
+                            <td><strong>{{ doc.title }}</strong></td>
+                            <td>{{ doc.original_filename }}</td>
+                            <td>{{ "%.2f"|format((doc.file_size or 0) / 1024) }} KB</td>
+                            <td>{{ doc.uploaded_by or "-" }}</td>
+                            <td>{{ doc.created_at.strftime("%d-%m-%Y") }}</td>
+                            <td>
+                                <div class="action-links">
+                                    <a href="{{ url_for('admin.download_document', document_id=doc.id) }}">Download</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_document', document_id=doc.id) }}" onsubmit="return confirm('Delete this document?');">
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="empty">No documents found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

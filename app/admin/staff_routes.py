@@ -2,6 +2,8 @@ from flask import render_template, redirect, url_for, session, request, flash
 from app.admin import admin_bp
 from app.database.db import db
 from app.database.models import Staff
+from app.utils.duplicate_checks import check_staff_duplicates
+from app.utils.validators import clean, validate_mobile, validate_email, collect_errors
 from app.utils.route_guards import require_staff_management
 
 
@@ -46,7 +48,18 @@ def add_staff():
 
     if request.method == "POST":
         staff_member = Staff(staff_code=get_next_staff_code())
-        save_staff_from_form(staff_member)
+        try:
+            save_staff_from_form(staff_member)
+            duplicate_errors = check_staff_duplicates(
+                email=staff_member.email,
+                mobile=staff_member.mobile
+            )
+            if duplicate_errors:
+                raise ValueError("\n".join(duplicate_errors))
+        except ValueError as error:
+            for msg in str(error).split("\n"):
+                flash(msg, "error")
+            return render_template("admin/staff_form.html", staff_member=None)
 
         db.session.add(staff_member)
         db.session.commit()
@@ -66,7 +79,19 @@ def edit_staff(staff_id):
     staff_member = Staff.query.get_or_404(staff_id)
 
     if request.method == "POST":
-        save_staff_from_form(staff_member)
+        try:
+            save_staff_from_form(staff_member)
+            duplicate_errors = check_staff_duplicates(
+                email=staff_member.email,
+                mobile=staff_member.mobile
+            )
+            if duplicate_errors:
+                raise ValueError("\n".join(duplicate_errors))
+        except ValueError as error:
+            for msg in str(error).split("\n"):
+                flash(msg, "error")
+            return render_template("admin/staff_form.html", staff_member=staff_member)
+
         db.session.commit()
 
         flash("Staff updated successfully", "success")
@@ -90,11 +115,23 @@ def delete_staff(staff_id):
 
 
 def save_staff_from_form(staff_member):
-    staff_member.name = request.form.get("name", "").strip()
-    staff_member.email = request.form.get("email", "").strip().lower()
-    staff_member.mobile = request.form.get("mobile", "").strip()
+    name = clean(request.form.get("name"))
+    email = clean(request.form.get("email")).lower()
+    mobile = clean(request.form.get("mobile"))
+
+    errors = collect_errors(
+        validate_email(email, required=True),
+        validate_mobile(mobile)
+    )
+
+    if errors:
+        raise ValueError("\n".join(errors))
+
+    staff_member.name = name
+    staff_member.email = email
+    staff_member.mobile = mobile
     staff_member.role = request.form.get("role", "staff").strip()
-    staff_member.designation = request.form.get("designation", "").strip()
-    staff_member.department = request.form.get("department", "").strip()
+    staff_member.designation = clean(request.form.get("designation"))
+    staff_member.department = clean(request.form.get("department"))
     staff_member.status = request.form.get("status", "active").strip()
-    staff_member.address = request.form.get("address", "").strip()
+    staff_member.address = clean(request.form.get("address"))
