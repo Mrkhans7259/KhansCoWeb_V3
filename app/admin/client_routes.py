@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, session, request, flash
 from app.admin import admin_bp
 from app.database.db import db
-from app.database.models import Client, ClientDocument, ComplianceTask
+from app.database.models import Client, ComplianceTask, ClientDocument, ClientMessage, ClientDocument, ComplianceTask
 from app.services.audit_service import log_action
 from app.utils.duplicate_checks import check_client_duplicates
 from app.utils.validators import clean, upper, validate_mobile, validate_email, validate_gstin, validate_pan, validate_pincode, collect_errors
@@ -172,48 +172,24 @@ def edit_client(client_id):
 @admin_bp.route("/clients/<int:client_id>/delete", methods=["POST"])
 @require_client_management
 def delete_client(client_id):
-    if not admin_required():
-        return redirect(url_for("auth.login"))
-
     client = Client.query.get_or_404(client_id)
-    db.session.delete(client)
-    db.session.commit()
-    flash("Client deleted successfully", "success")
-    return redirect(url_for("admin.clients"))
+    client_name = client.business_name
 
+    # Delete child records first to avoid NOT NULL / foreign key errors
+    ComplianceTask.query.filter_by(client_id=client.id).delete(synchronize_session=False)
+    ClientDocument.query.filter_by(client_id=client.id).delete(synchronize_session=False)
+    ClientMessage.query.filter_by(client_id=client.id).delete(synchronize_session=False)
 
-def save_client_from_form(client):
-    business_name = clean(request.form.get("business_name"))
-    client_name = clean(request.form.get("client_name"))
-    mobile = clean(request.form.get("mobile"))
-    email = clean(request.form.get("email")).lower()
-    gstin = upper(request.form.get("gstin"))
-    pan = upper(request.form.get("pan"))
-    pincode = clean(request.form.get("pincode"))
-
-    errors = collect_errors(
-        validate_mobile(mobile),
-        validate_email(email),
-        validate_gstin(gstin),
-        validate_pan(pan),
-        validate_pincode(pincode)
+    log_action(
+        action="Deleted",
+        module="Client Master",
+        record_type="Client",
+        record_id=client.id,
+        description=f"Deleted client {client_name} and linked compliance/documents/messages"
     )
 
-    if errors:
-        raise ValueError("\n".join(errors))
+    db.session.delete(client)
+    db.session.commit()
 
-    client.business_name = business_name
-    client.client_name = client_name
-    client.mobile = mobile
-    client.email = email
-    client.gstin = gstin
-    client.pan = pan
-    client.constitution = clean(request.form.get("constitution"))
-    client.registration_type = clean(request.form.get("registration_type"))
-    client.return_frequency = clean(request.form.get("return_frequency"))
-    client.address = clean(request.form.get("address"))
-    client.city = clean(request.form.get("city"))
-    client.state = clean(request.form.get("state"))
-    client.pincode = pincode
-    client.status = request.form.get("status", "active")
-    client.assigned_staff = clean(request.form.get("assigned_staff"))
+    flash("Client and linked records deleted successfully.", "success")
+    return redirect(url_for("admin.clients"))
