@@ -28,7 +28,50 @@
                     <div><label>Email</label><input type="email" name="email" required></div>
                     <div><label>GSTIN</label><input name="gstin" data-validate="gstin" maxlength="15" style="text-transform:uppercase"></div>
                     <div><label>PAN</label><input name="pan" data-validate="pan" maxlength="10" style="text-transform:uppercase"></div>
-                    <div><label>Password</label><input type="password" name="password" required></div>
+                    <div><label>Password</label><input type="password" name="password" id="password" required>
+<div class="password-rules" style="margin-top:10px;font-size:13px;">
+    <div id="rule-length">❌ Minimum 8 characters</div>
+    <div id="rule-upper">❌ One uppercase letter</div>
+    <div id="rule-lower">❌ One lowercase letter</div>
+    <div id="rule-number">❌ One number</div>
+    <div id="rule-special">❌ One special character</div>
+</div>
+
+<script>
+const password = document.getElementById("password");
+const createBtn = document.getElementById("createBtn");
+
+if(password){
+    password.addEventListener("input", function () {
+
+        const value = password.value;
+
+        const lengthOK = value.length >= 8;
+        const upperOK = /[A-Z]/.test(value);
+        const lowerOK = /[a-z]/.test(value);
+        const numberOK = /[0-9]/.test(value);
+        const specialOK = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+        document.getElementById("rule-length").innerHTML =
+            (lengthOK ? "✅" : "❌") + " Minimum 8 characters";
+
+        document.getElementById("rule-upper").innerHTML =
+            (upperOK ? "✅" : "❌") + " One uppercase letter";
+
+        document.getElementById("rule-lower").innerHTML =
+            (lowerOK ? "✅" : "❌") + " One lowercase letter";
+
+        document.getElementById("rule-number").innerHTML =
+            (numberOK ? "✅" : "❌") + " One number";
+
+        document.getElementById("rule-special").innerHTML =
+            (specialOK ? "✅" : "❌") + " One special character";
+
+        createBtn.disabled = !(lengthOK && upperOK && lowerOK && numberOK && specialOK);
+    });
+}
+</script>
+</div>
                     <div><label>Confirm Password</label><input type="password" name="confirm_password" required></div>
                 </div>
 
