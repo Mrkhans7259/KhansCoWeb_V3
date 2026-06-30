@@ -1,0 +1,49 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Request Document</h1>
+                <p>{{ client.business_name }} — {{ client.client_name }}</p>
+            </div>
+            <a class="top-action secondary" href="{{ url_for('admin.client_documents', client_id=client.id) }}">Back</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <h3>New Document Request</h3>
+
+            <form method="POST" class="client-form">
+                <label>Document Name</label>
+                <select name="document_name" required>
+                    <option value="">Select document</option>
+                    {% for item in document_types %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Description / Period</label>
+                <textarea name="description" rows="4" placeholder="Example: Please upload June 2026 bank statement"></textarea>
+
+                <label>Due Date</label>
+                <input type="date" name="due_date">
+
+                <button type="submit" class="save-btn">Send Request</button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

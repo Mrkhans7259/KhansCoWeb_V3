@@ -30,6 +30,7 @@
         {% endif %}
 
         <a class="{% if request.endpoint in ['admin.all_documents','admin.client_documents'] %}active{% endif %}" href="{{ url_for('admin.all_documents') }}">Documents</a>
+        <a class="{% if request.endpoint in ['admin.all_document_requests','admin.request_document'] %}active{% endif %}" href="{{ url_for('admin.all_document_requests') }}">Document Requests</a>
 
         <a href="#">Finance</a>
         <a href="#">Reports</a>

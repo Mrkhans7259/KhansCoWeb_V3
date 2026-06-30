@@ -26,3 +26,5 @@ from app.admin import gst_json_routes
 from app.admin import search_routes
 
 from app.admin import message_routes
+
+from app.admin import document_request_routes

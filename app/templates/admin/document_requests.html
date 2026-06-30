@@ -1,0 +1,72 @@
+{% extends "shared/base.html" %}
+
+{% block body %}
+<div class="app-layout">
+    {% include "shared/admin_sidebar.html" %}
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Document Requests</h1>
+                <p>Track requested documents from clients</p>
+            </div>
+            <div class="profile">Total: {{ requests|length }}</div>
+        </header>
+
+        <section class="panel">
+            <form method="GET" class="smart-filter">
+                <select name="status">
+                    <option value="">All Status</option>
+                    {% for st in ["Pending", "Uploaded", "Approved", "Rejected"] %}
+                        <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Apply</button>
+                <a href="{{ url_for('admin.all_document_requests') }}">Clear</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="table-wrap">
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Document</th>
+                            <th>Description</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                            <th>Uploaded File</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>{{ req.client.business_name }}</td>
+                            <td>{{ req.document_name }}</td>
+                            <td>{{ req.description or "-" }}</td>
+                            <td>{{ req.due_date.strftime("%d-%m-%Y") if req.due_date else "-" }}</td>
+                            <td><span class="badge {{ 'active' if req.status in ['Uploaded','Approved'] else 'pending' }}">{{ req.status }}</span></td>
+                            <td>{{ req.uploaded_filename or "-" }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('admin.update_document_request_status', request_id=req.id) }}">
+                                    <select name="status">
+                                        {% for st in ["Pending", "Uploaded", "Approved", "Rejected"] %}
+                                            <option value="{{ st }}" {% if req.status == st %}selected{% endif %}>{{ st }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="empty">No document requests found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

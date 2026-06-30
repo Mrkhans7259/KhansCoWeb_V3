@@ -11,6 +11,7 @@
                 <p>{{ client.business_name }} — {{ client.client_code }}</p>
             </div>
             <a class="top-action secondary" href="{{ url_for('admin.view_client', client_id=client.id) }}">Back to Client</a>
+        <a class="top-action" href="{{ url_for('admin.request_document', client_id=client.id) }}">Request Document</a>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}

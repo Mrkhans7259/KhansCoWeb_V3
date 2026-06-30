@@ -237,3 +237,20 @@ class ClientMessage(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     client = db.relationship("Client", backref="messages")
+
+class DocumentRequest(db.Model):
+    __tablename__ = "document_requests"
+
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False, index=True)
+    document_name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    due_date = db.Column(db.Date)
+    status = db.Column(db.String(50), default="Pending")
+    requested_by = db.Column(db.String(120))
+    uploaded_filename = db.Column(db.String(255))
+    uploaded_stored_filename = db.Column(db.String(255))
+    uploaded_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    client = db.relationship("Client", backref="document_requests")
